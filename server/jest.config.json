@@ -5,10 +5,11 @@
     "ts"
   ],
   "rootDir": "src",
-  "testRegex": ".spec.ts$",
+  "testRegex": ".test.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
+  "collectCoverageFrom": ["**/*.ts"],
   "coverageDirectory": "../coverage",
   "testEnvironment": "node"
 }

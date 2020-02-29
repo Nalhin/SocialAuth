@@ -1,6 +1,7 @@
 # compiled output
 dist
 node_modules
+src/graphql.ts
 
 # Logs
 logs
@@ -15,6 +16,7 @@ lerna-debug.log*
 
 # Tests
 /coverage
+/coverage-e2e
 /.nyc_output
 
 # IDEs and editors

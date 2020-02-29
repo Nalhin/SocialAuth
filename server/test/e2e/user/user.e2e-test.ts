@@ -10,7 +10,7 @@ import { GraphQLConfig } from '../../../src/gqlConfig';
 import {
   mockUserFactory,
   mockUserRegisterInputFactory,
-} from '../../mocks/user/user.mock';
+} from '../../fixtures/user/user.fixture';
 import { UserModule } from '../../../src/user/user.module';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../../../src/user/user.entity';

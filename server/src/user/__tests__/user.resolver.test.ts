@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserResolver } from './user.resolver';
-import { UserService } from './user.service';
+import { UserResolver } from '../user.resolver';
+import { UserService } from '../user.service';
 import {
   mockUserFactory,
   mockUserRegisterInputFactory,
-} from '../../test/mocks/user/user.mock';
+} from '../../../test/fixtures/user/user.fixture';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { User } from './user.entity';
+import { User } from '../user.entity';
 import { Repository } from 'typeorm';
 
 describe('UserResolver', () => {
