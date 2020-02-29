@@ -1,15 +1,30 @@
-import {Inject, Injectable} from "@nestjs/common";
-import {Repository} from "typeorm";
-import {User} from "./user.entity";
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from './user.entity';
+import { Repository } from 'typeorm';
+import { UserRegisterInput } from '../graphql';
 
 @Injectable()
-export class PhotoService {
-    constructor(
-        @Inject('PHOTO_REPOSITORY')
-        private readonly userRepository: Repository<User>,
-    ) {}
+export class UserService {
+  constructor(
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
+  ) {}
 
-    async findAll(): Promise<User[]> {
-        return this.userRepository.find();
-    }
+  save(user: UserRegisterInput): Promise<User> {
+    return this.usersRepository.save(user);
+  }
+
+  findAll(): Promise<User[]> {
+    return this.usersRepository.find();
+  }
+
+  findOneByUsername(username: string): Promise<User> {
+    return this.usersRepository.findOne(username);
+  }
+
+  async remove(id: number): Promise<User> {
+    const user = await this.usersRepository.findOne(id);
+    return this.usersRepository.remove(user);
+  }
 }
