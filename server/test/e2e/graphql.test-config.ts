@@ -1,1 +1,4 @@
-export const graphqlTestConfig = { typePaths: ['./**/*.graphql'] };
+export const graphqlTestConfig = {
+  typePaths: ['./**/*.graphql'],
+  context: ({ req }) => ({ req }),
+};

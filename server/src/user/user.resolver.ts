@@ -1,7 +1,16 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  Mutation,
+  Parent,
+  Query,
+  ResolveProperty,
+  Resolver,
+} from '@nestjs/graphql';
 import { UserService } from './user.service';
 import { User } from './user.entity';
 import { ID } from 'type-graphql';
+import { UseGuards } from '@nestjs/common';
+import { GqlAuthGuard } from '../auth/jwt-auth.guard';
 
 @Resolver(of => User)
 export class UserResolver {
@@ -18,9 +27,16 @@ export class UserResolver {
   }
 
   @Mutation(returns => User)
+  @UseGuards(GqlAuthGuard)
   async removeUser(
     @Args({ name: 'id', type: () => ID }) id: number,
   ): Promise<User> {
     return this.userService.remove(id);
+  }
+
+  @ResolveProperty('users', returns => [User])
+  async getUsers(@Parent() user) {
+    const { id } = user;
+    return this.userService.findAll({ id });
   }
 }

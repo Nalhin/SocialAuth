@@ -15,8 +15,8 @@ export class UserService {
     return this.usersRepository.save(user);
   }
 
-  findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+  findAll(properties?: Partial<User>): Promise<User[]> {
+    return this.usersRepository.find(properties);
   }
 
   findOneByUsername(username: string): Promise<User> {
@@ -24,7 +24,7 @@ export class UserService {
   }
 
   async remove(id: number): Promise<User> {
-    const user = await this.usersRepository.findOne(id);
+    const user = await this.usersRepository.findOne({ id });
     return this.usersRepository.remove(user);
   }
 }
