@@ -5,6 +5,9 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { graphqlConfig } from './graphql.config';
+import { PostResolver } from './post/post.resolver';
+import { PostService } from './post/post.service';
+import { PostModule } from './post/post.module';
 
 @Module({
   imports: [
@@ -22,6 +25,8 @@ import { graphqlConfig } from './graphql.config';
     ConfigModule.forRoot(),
     UserModule,
     AuthModule,
+    PostModule,
   ],
+  providers: [PostResolver, PostService],
 })
 export class AppModule {}

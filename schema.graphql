@@ -3,6 +3,10 @@
 # !!!   DO NOT MODIFY THIS FILE BY YOURSELF   !!!
 # -----------------------------------------------
 
+input AddPostInput {
+  content: String!
+}
+
 type AuthUser {
   id: ID!
   username: String!
@@ -10,15 +14,29 @@ type AuthUser {
   token: String!
 }
 
+"""
+The javascript `Date` as string. Type represents date and time as the ISO Date string.
+"""
+scalar DateTime
+
 type Mutation {
   removeUser(id: ID!): User!
   login(userLoginInput: UserLoginInput!): AuthUser!
   register(userRegisterInput: UserRegisterInput!): AuthUser!
+  addPost(addPostInput: AddPostInput!): Post!
+}
+
+type Post {
+  id: ID!
+  content: String!
+  author: User!
+  creationDate: DateTime!
 }
 
 type Query {
   users: [User!]!
   user(username: String!): User!
+  posts: [Post!]!
 }
 
 type User {

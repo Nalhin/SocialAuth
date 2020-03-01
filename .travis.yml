@@ -16,16 +16,16 @@ jobs:
         - npx codecov@3
 
     - name: 'Server E2E Tests'
-        node_js: 13.1
-        cache:
-          directories:
-            - ~/.npm
-            - ~/.cache
-        before_install:
-          - cd server
-        install:
-          - npm install
-        script:
-          - npm run test:e2e:cov
-        after_script:
-          - npx codecov@3
+      node_js: 13.1
+      cache:
+        directories:
+          - ~/.npm
+          - ~/.cache
+      before_install:
+        - cd server
+      install:
+        - npm install
+      script:
+        - npm run test:e2e:cov
+      after_script:
+        - npx codecov@3

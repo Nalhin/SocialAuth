@@ -1,11 +1,4 @@
-import {
-  Args,
-  Mutation,
-  Parent,
-  Query,
-  ResolveProperty,
-  Resolver,
-} from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { UserService } from './user.service';
 import { User } from './user.entity';
 import { ID } from 'type-graphql';
@@ -32,11 +25,5 @@ export class UserResolver {
     @Args({ name: 'id', type: () => ID }) id: number,
   ): Promise<User> {
     return this.userService.remove(id);
-  }
-
-  @ResolveProperty('users', returns => [User])
-  async getUsers(@Parent() user) {
-    const { id } = user;
-    return this.userService.findAll({ id });
   }
 }
