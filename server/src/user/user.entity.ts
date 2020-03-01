@@ -1,16 +1,21 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Field, ID, ObjectType } from 'type-graphql';
 
+@ObjectType()
 @Entity()
 export class User {
+  @Field(type => ID)
   @PrimaryGeneratedColumn()
   public id: number;
 
+  @Field()
   @Column('varchar', { length: 500, unique: true })
   public username: string;
 
-  @Column('varchar', { select: false })
-  public password: string;
-
+  @Field()
   @Column('varchar')
   public email: string;
+
+  @Column('varchar')
+  public password: string;
 }

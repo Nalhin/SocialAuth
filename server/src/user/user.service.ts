@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { Repository } from 'typeorm';
-import { UserRegisterInput } from '../graphql';
+import { UserRegisterInput } from '../auth/input/user-register.input';
 
 @Injectable()
 export class UserService {
@@ -20,7 +20,7 @@ export class UserService {
   }
 
   findOneByUsername(username: string): Promise<User> {
-    return this.usersRepository.findOne(username);
+    return this.usersRepository.findOne({ username });
   }
 
   async remove(id: number): Promise<User> {

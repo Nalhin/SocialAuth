@@ -1,10 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserResolver } from '../user.resolver';
 import { UserService } from '../user.service';
-import {
-  mockUserFactory,
-  mockUserRegisterInputFactory,
-} from '../../../test/fixtures/user/user.fixture';
+import { mockUserFactory } from '../../../test/fixtures/user/user.fixture';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../user.entity';
 import { Repository } from 'typeorm';
@@ -47,18 +44,6 @@ describe('UserResolver', () => {
       jest.spyOn(service, 'findOneByUsername').mockResolvedValueOnce(expected);
 
       const result = await resolver.user(expected.username);
-
-      expect(result).toBe(expected);
-    });
-  });
-
-  describe('createUser', () => {
-    it('should save user', async () => {
-      const mockUserRegisterInput = mockUserRegisterInputFactory();
-      const expected = mockUserFactory(mockUserRegisterInput);
-      jest.spyOn(service, 'save').mockResolvedValueOnce(expected);
-
-      const result = await resolver.createUser(mockUserRegisterInput);
 
       expect(result).toBe(expected);
     });

@@ -1,7 +1,8 @@
 # compiled output
 dist
+
 node_modules
-src/graphql.ts
+.env
 
 # Logs
 logs

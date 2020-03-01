@@ -1,8 +1,17 @@
 import * as faker from 'faker';
 import { User } from '../../../src/user/user.entity';
-import { UserLoginInput, UserRegisterInput } from '../../../src/graphql';
+import { UserRegisterInput } from '../../../src/auth/input/user-register.input';
+import { UserLoginInput } from '../../../src/auth/input/user-login.input';
+import { AuthUser } from '../../../src/auth/types/auth-user';
 
-export function mockUserFactory(user?: User | any): User {
+export function mockAuthUserFactory(user?: Partial<AuthUser>): AuthUser {
+  return {
+    token: faker.random.uuid(),
+    ...mockUserFactory(user),
+  };
+}
+
+export function mockUserFactory(user?: Partial<User>): User {
   return {
     id: faker.random.number(),
     username: faker.internet.userName(),
@@ -13,7 +22,7 @@ export function mockUserFactory(user?: User | any): User {
 }
 
 export function mockUserLoginInputFactory(
-  userInput?: UserLoginInput | any,
+  userInput?: Partial<UserLoginInput>,
 ): UserLoginInput {
   return {
     username: faker.internet.userName(),
@@ -23,7 +32,7 @@ export function mockUserLoginInputFactory(
 }
 
 export function mockUserRegisterInputFactory(
-  userInput?: UserRegisterInput | any,
+  userInput?: Partial<UserRegisterInput>,
 ): UserRegisterInput {
   return {
     ...mockUserLoginInputFactory(),

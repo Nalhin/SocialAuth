@@ -1,6 +1,6 @@
 jobs:
   include:
-    - name: 'Server'
+    - name: 'Server Unit Tests'
       node_js: 13.1
       cache:
         directories:
@@ -14,3 +14,18 @@ jobs:
         - npm run test:cov
       after_script:
         - npx codecov@3
+
+    - name: 'Server E2E Tests'
+        node_js: 13.1
+        cache:
+          directories:
+            - ~/.npm
+            - ~/.cache
+        before_install:
+          - cd server
+        install:
+          - npm install
+        script:
+          - npm run test:e2e:cov
+        after_script:
+          - npx codecov@3

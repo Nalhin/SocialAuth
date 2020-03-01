@@ -2,7 +2,9 @@ import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
-import { GraphQLConfig } from './gqlConfig';
+import { AuthModule } from './auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
+import { graphqlConfig } from './graphql.config';
 
 @Module({
   imports: [
@@ -16,8 +18,10 @@ import { GraphQLConfig } from './gqlConfig';
       synchronize: true,
       autoLoadEntities: true,
     }),
-    GraphQLModule.forRoot(GraphQLConfig),
+    GraphQLModule.forRoot(graphqlConfig),
+    ConfigModule.forRoot(),
     UserModule,
+    AuthModule,
   ],
 })
 export class AppModule {}

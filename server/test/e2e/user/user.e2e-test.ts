@@ -6,15 +6,12 @@ import {
   ApolloServerTestClient,
   createTestClient,
 } from 'apollo-server-testing';
-import { GraphQLConfig } from '../../../src/gqlConfig';
-import {
-  mockUserFactory,
-  mockUserRegisterInputFactory,
-} from '../../fixtures/user/user.fixture';
+import { mockUserFactory } from '../../fixtures/user/user.fixture';
 import { UserModule } from '../../../src/user/user.module';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../../../src/user/user.entity';
 import { Repository } from 'typeorm';
+import { graphqlTestConfig } from '../graphql.test-config';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -23,7 +20,7 @@ describe('AppController (e2e)', () => {
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [GraphQLModule.forRoot(GraphQLConfig), UserModule],
+      imports: [GraphQLModule.forRoot(graphqlTestConfig), UserModule],
     })
       .overrideProvider(getRepositoryToken(User))
       .useClass(Repository)
@@ -85,32 +82,6 @@ describe('AppController (e2e)', () => {
     });
   });
 
-  describe('createUser Mutation', () => {
-    it('should create user, and then return', async () => {
-      const { mutate } = apolloClient;
-      const mockRegisterInput = mockUserRegisterInputFactory();
-      const mockUser = mockUserFactory(mockRegisterInput);
-      jest.spyOn(repository, 'save').mockResolvedValueOnce(mockUser);
-
-      const result = await mutate({
-        mutation: gql`
-          mutation createUser($user: UserRegisterInput!) {
-            createUser(input: $user) {
-              username
-              id
-              email
-            }
-          }
-        `,
-        variables: {
-          user: mockRegisterInput,
-        },
-      });
-
-      expect(result.data.createUser.username).toBe(mockUser.username);
-    });
-  });
-
   describe('removeUser Mutation', () => {
     it('should remove user, and return removed user', async () => {
       const { mutate } = apolloClient;
@@ -120,8 +91,8 @@ describe('AppController (e2e)', () => {
 
       const result = await mutate({
         mutation: gql`
-          mutation removeUser($username: String!) {
-            removeUser(username: $username) {
+          mutation removeUser($id: ID!) {
+            removeUser(id: $id) {
               username
               id
               email
@@ -129,7 +100,7 @@ describe('AppController (e2e)', () => {
           }
         `,
         variables: {
-          username: mockUser.username,
+          id: mockUser.id,
         },
       });
 

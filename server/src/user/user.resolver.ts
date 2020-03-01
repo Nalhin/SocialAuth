@@ -1,31 +1,26 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { UserService } from './user.service';
 import { User } from './user.entity';
-import { UserRegisterInput } from '../graphql';
-import { UsePipes, ValidationPipe } from '@nestjs/common';
+import { ID } from 'type-graphql';
 
-@Resolver('User')
+@Resolver(of => User)
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
-  @Query('users')
+  @Query(returns => [User])
   async users(): Promise<User[]> {
     return this.userService.findAll();
   }
 
-  @Query('user')
-  async user(@Args('username') userName: string): Promise<User> {
-    return this.userService.findOneByUsername(userName);
+  @Query(returns => User)
+  async user(@Args('username') username: string): Promise<User> {
+    return this.userService.findOneByUsername(username);
   }
 
-  @UsePipes(new ValidationPipe({ transform: true }))
-  @Mutation('createUser')
-  async createUser(@Args('input') userInput: UserRegisterInput): Promise<User> {
-    return this.userService.save(userInput);
-  }
-
-  @Mutation('removeUser')
-  async removeUser(@Args('id') id: number): Promise<User> {
+  @Mutation(returns => User)
+  async removeUser(
+    @Args({ name: 'id', type: () => ID }) id: number,
+  ): Promise<User> {
     return this.userService.remove(id);
   }
 }
