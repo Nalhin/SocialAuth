@@ -3,11 +3,13 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
-  OneToOne,
+  ManyToMany,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Field, ID, ObjectType } from 'type-graphql';
 import { User } from '../user/user.entity';
+import { Tag } from '../tag/tag.entity';
 
 @ObjectType()
 @Entity()
@@ -21,11 +23,25 @@ export class Post {
   public content: string;
 
   @Field(type => User)
-  @OneToOne(type => User)
+  @ManyToOne(type => User)
   @JoinColumn()
   public author: User;
 
   @Field()
   @CreateDateColumn()
   public creationDate: Date;
+
+  @Field(type => [Tag])
+  @ManyToMany(
+    type => Tag,
+    tag => tag.posts,
+    {
+      cascade: ['insert', 'update'],
+    },
+  )
+  public tags: Tag[];
+
+  @Field(type => [User], { nullable: false })
+  @ManyToMany(type => User)
+  public upvotedBy: User[];
 }

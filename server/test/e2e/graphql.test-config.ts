@@ -1,4 +1,4 @@
 export const graphqlTestConfig = {
-  typePaths: ['./**/*.graphql'],
+  autoSchemaFile: '../../schema.graphql',
   context: ({ req }) => ({ req }),
 };
