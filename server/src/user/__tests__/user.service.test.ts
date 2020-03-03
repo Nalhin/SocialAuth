@@ -38,6 +38,7 @@ describe('UserService', () => {
       expect(result).toBe(mockUser);
     });
   });
+
   describe('findAll', () => {
     it('should return all users', async () => {
       const mockUser = mockUserFactory();

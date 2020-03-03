@@ -11,6 +11,8 @@ type AuthUser {
   id: ID!
   username: String!
   email: String!
+  followedTags: [Tag!]!
+  upvotedPosts: [Post!]!
   token: String!
 }
 
@@ -24,6 +26,8 @@ type Mutation {
   login(userLoginInput: UserLoginInput!): AuthUser!
   register(userRegisterInput: UserRegisterInput!): AuthUser!
   addPost(addPostInput: AddPostInput!): Post!
+  upvotePost(postId: ID!): Post!
+  followTag(id: ID!): Tag!
 }
 
 type Post {
@@ -31,18 +35,31 @@ type Post {
   content: String!
   author: User!
   creationDate: DateTime!
+  tags: [Tag!]!
+  upvotedBy: [User!]!
 }
 
 type Query {
   users: [User!]!
   user(username: String!): User!
+  me: User!
   posts: [Post!]!
+  tags: [Tag!]!
+}
+
+type Tag {
+  id: ID!
+  name: String!
+  posts: [Post!]!
+  followers: [User!]!
 }
 
 type User {
   id: ID!
   username: String!
   email: String!
+  followedTags: [Tag!]!
+  upvotedPosts: [Post!]!
 }
 
 input UserLoginInput {

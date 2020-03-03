@@ -17,6 +17,8 @@ export function mockUserFactory(user?: Partial<User>): User {
     username: faker.internet.userName(),
     password: faker.internet.password(),
     email: faker.internet.email(),
+    followedTags: [],
+    upvotedPosts: [],
     ...user,
   };
 }

@@ -6,6 +6,7 @@ import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUserDecorator } from '../decorators/current-user.decorator';
 import { User } from '../user/user.entity';
+import { ID } from 'type-graphql';
 
 @Resolver(of => Post)
 export class PostResolver {
@@ -22,7 +23,15 @@ export class PostResolver {
     @Args('addPostInput') addPostInput: AddPostInput,
     @CurrentUserDecorator() user: User,
   ): Promise<Post> {
-    console.log(user);
     return this.postService.save(addPostInput, user);
+  }
+
+  @Mutation(returns => Post)
+  @UseGuards(GqlAuthGuard)
+  async upvotePost(
+    @Args({ name: 'postId', type: () => ID }) postId: number,
+    @CurrentUserDecorator() user: User,
+  ): Promise<Post> {
+    return this.postService.upvote(postId, user);
   }
 }
