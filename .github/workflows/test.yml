@@ -4,8 +4,8 @@ on: [push]
 
 jobs:
 
-  server-lint:
-    name: Server lint
+  backend-lint:
+    name: Backend lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -18,20 +18,20 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('./server/package-lock.json') }}
+          key: ${{ runner.os }}-node-${{ hashFiles('./backend/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
       - name: Install dependencies
         run: npm install
-        working-directory: ./server
+        working-directory: ./backend
       - name: Run tests
         run: npm run lint
-        working-directory: ./server
+        working-directory: ./backend
         env:
           CI: true
 
-  server-tests:
-    name: Server unit tests
+  backend-tests:
+    name: Backend unit tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -44,22 +44,22 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('./server/package-lock.json') }}
+          key: ${{ runner.os }}-node-${{ hashFiles('./backend/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
       - name: Install dependencies
         run: npm install
-        working-directory: ./server
+        working-directory: ./backend
       - name: Run tests
         run: npm run test:cov
-        working-directory: ./server
+        working-directory: ./backend
       - name: Upload coverage
         uses: codecov/codecov-action@v1
         env:
           CI: true
 
-  server-e2e-tests:
-    name: Server E2E tests
+  backend-e2e-tests:
+    name: Backend E2E tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -72,15 +72,15 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('./server/package-lock.json') }}
+          key: ${{ runner.os }}-node-${{ hashFiles('./backend/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
       - name: Install dependencies
         run: npm install
-        working-directory: ./server
+        working-directory: ./backend
       - name: Run tests
         run: npm run test:e2e:cov
-        working-directory: ./server
+        working-directory: ./backend
       - name: Upload coverage
         uses: codecov/codecov-action@v1
         env:

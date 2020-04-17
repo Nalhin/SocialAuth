@@ -8,7 +8,7 @@ import {
 } from '../../../test/fixtures/user/user.fixture';
 import { AuthService } from '../auth.service';
 import { UserService } from '../../user/user.service';
-import { JwtModule, JwtService } from '@nestjs/jwt';
+import { JwtModule } from '@nestjs/jwt';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../../user/user.entity';
 import { Repository } from 'typeorm';

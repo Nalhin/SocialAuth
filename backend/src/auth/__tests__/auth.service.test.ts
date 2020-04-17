@@ -5,10 +5,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../../user/user.entity';
 import { Repository } from 'typeorm';
-import {
-  mockUserFactory,
-  mockUserRegisterInputFactory,
-} from '../../../test/fixtures/user/user.fixture';
+import { mockUserFactory, mockUserRegisterInputFactory } from '../../../test/fixtures/user/user.fixture';
 
 describe('AuthService', () => {
   let authService: AuthService;

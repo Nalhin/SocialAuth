@@ -1,8 +1,8 @@
-import * as faker from "faker";
-import { User } from "../../../src/user/user.entity";
-import { UserRegisterInput } from "../../../src/auth/input/user-register.input";
-import { UserLoginInput } from "../../../src/auth/input/user-login.input";
-import { AuthUser } from "../../../src/auth/types/auth-user";
+import * as faker from 'faker';
+import { User } from '../../../src/user/user.entity';
+import { UserRegisterInput } from '../../../src/auth/input/user-register.input';
+import { UserLoginInput } from '../../../src/auth/input/user-login.input';
+import { AuthUser } from '../../../src/auth/types/auth-user';
 
 export function mockUserFactory(user?: Partial<User>): User {
   return {

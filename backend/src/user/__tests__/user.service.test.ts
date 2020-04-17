@@ -3,10 +3,7 @@ import { UserService } from '../user.service';
 import { Repository } from 'typeorm';
 import { User } from '../user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import {
-  mockUserFactory,
-  mockUserRegisterInputFactory,
-} from '../../../test/fixtures/user/user.fixture';
+import { mockUserFactory, mockUserRegisterInputFactory } from '../../../test/fixtures/user/user.fixture';
 
 describe('UserService', () => {
   let service: UserService;
