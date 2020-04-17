@@ -8,6 +8,9 @@ import { graphqlConfig } from './graphql.config';
 import { PostResolver } from './post/post.resolver';
 import { PostService } from './post/post.service';
 import { PostModule } from './post/post.module';
+import { TagResolver } from './tag/tag.resolver';
+import { TagService } from './tag/tag.service';
+import { TagModule } from './tag/tag.module';
 
 @Module({
   imports: [
@@ -26,7 +29,8 @@ import { PostModule } from './post/post.module';
     UserModule,
     AuthModule,
     PostModule,
+    TagModule,
   ],
-  providers: [PostResolver, PostService],
+  providers: [PostResolver, PostService, TagResolver, TagService],
 })
 export class AppModule {}
