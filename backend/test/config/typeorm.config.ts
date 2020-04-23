@@ -4,7 +4,6 @@ import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
 @Injectable()
 export class TypeOrmTestConfigService implements TypeOrmOptionsFactory {
   createTypeOrmOptions(): TypeOrmModuleOptions {
-    console.log(process.env)
     return {
       type: 'postgres',
       host: 'localhost',

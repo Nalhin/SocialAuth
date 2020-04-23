@@ -9,7 +9,7 @@ services:
     environment:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DATABASE=${DB_TEST}
+      - POSTGRES_DB=${DB_TEST}
 
 volumes:
   db:
