@@ -2,9 +2,9 @@ import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Tag } from './tag.entity';
 import { TagService } from './tag.service';
 import { UseGuards } from '@nestjs/common';
-import { GqlAuthGuard } from '../auth/jwt-auth.guard';
 import { User } from '../user/user.entity';
 import { GqlUser } from '../common/decorators/gql-user.decorator';
+import { GqlAuthGuard } from '../common/guard/gql-auth.guard';
 
 @Resolver(of => Tag)
 export class TagResolver {

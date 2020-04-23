@@ -50,7 +50,7 @@ describe('UserResolver', () => {
 
   describe('removeUser', () => {
     it('should removeUser', async () => {
-      const expected = userFactory.buildOne()
+      const expected = userFactory.buildOne();
       jest.spyOn(service, 'remove').mockResolvedValueOnce(expected);
 
       const result = await resolver.removeUser(expected.id);

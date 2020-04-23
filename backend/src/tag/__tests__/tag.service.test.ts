@@ -40,7 +40,9 @@ describe('TagService', () => {
   describe('addFollower', () => {
     const user = userFactory.buildOne();
     const tag = tagFactory.buildOne();
-    const tagWithFollower = tagFactory.buildOne({ followers: userFactory.buildMany(2) });
+    const tagWithFollower = tagFactory.buildOne({
+      followers: userFactory.buildMany(2),
+    });
 
     it('should allow adding follower', async () => {
       jest.spyOn(repository, 'findOne').mockResolvedValueOnce(tag);

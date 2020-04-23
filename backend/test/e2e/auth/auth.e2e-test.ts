@@ -1,26 +1,22 @@
 import { gql } from 'apollo-server-express';
 import { INestApplication } from '@nestjs/common';
-import { Repository } from 'typeorm';
-import { User } from '../../../src/user/user.entity';
 import { Test, TestingModule } from '@nestjs/testing';
-import { getRepositoryToken } from '@nestjs/typeorm';
 import * as request from 'supertest';
 import { AppModule } from '../../../src/app.module';
 import { GraphqlConfigService } from '../../../src/config/graphql.config';
 import { GraphqlTestConfigService } from '../../config/graphql.config';
 import { TypeOrmConfigService } from '../../../src/config/typeorm.config';
 import { TypeOrmTestConfigService } from '../../config/typeorm.config';
-import { TestUtils } from '../../utils/database.utils';
+import { TypeOrmTestUtils } from '../../utils/typeorm-test.utils';
 import { userFactory, userLoginInputFactory, userRegisterInputFactory } from '../../factories/user.factory';
 
-describe('AppController (e2e)', () => {
+describe('AuthModule (e2e)', () => {
   let app: INestApplication;
-  let repository: Repository<User>;
-  let testUtils: TestUtils;
+  let testUtils: TypeOrmTestUtils;
 
   beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule, TestUtils],
+    const moduleRef: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
     })
       .overrideProvider(GraphqlConfigService)
       .useClass(GraphqlTestConfigService)
@@ -28,13 +24,18 @@ describe('AppController (e2e)', () => {
       .useClass(TypeOrmTestConfigService)
       .compile();
 
-    app = moduleFixture.createNestApplication();
+    app = moduleRef.createNestApplication();
     await app.init();
-    repository = moduleFixture.get<Repository<User>>(getRepositoryToken(User));
-    testUtils = moduleFixture.get<TestUtils>(TestUtils);
+    testUtils = new TypeOrmTestUtils();
+    await testUtils.startServer();
   });
 
-  describe('register Mutation', () => {
+
+  afterEach(async () => {
+    await testUtils.closeServer();
+  });
+
+  describe('register mutation', () => {
     it('should create user, and then return user Data', async () => {
       const userRegisterInput = userRegisterInputFactory.buildOne();
 
@@ -59,16 +60,17 @@ describe('AppController (e2e)', () => {
         .send(query)
         .expect(200);
 
-      expect(result.body.data.register.username).toBe(userRegisterInput.username);
+      expect(result.body.data.register.username).toBe(
+        userRegisterInput.username,
+      );
       expect(result.body.data.register.token).toBeTruthy();
     });
   });
 
-  describe('login Mutation', () => {
+  describe('login mutation', () => {
     it('should validate login request', async () => {
       const userLoginInput = userLoginInputFactory.buildOne();
-      const user = await userFactory.buildOne(userLoginInput);
-      jest.spyOn(repository, 'findOne').mockResolvedValueOnce(user);
+      const user = await userFactory.buildOneAsync(testUtils.saveOne, userLoginInput);
 
       const query = {
         query: gql`

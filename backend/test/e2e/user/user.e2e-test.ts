@@ -1,25 +1,22 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { User } from '../../../src/user/user.entity';
-import { Repository } from 'typeorm';
 import * as request from 'supertest';
-import { gql } from 'apollo-server-express';
-import { JwtService } from '@nestjs/jwt';
-import { jwtOptions } from '../../../src/auth/jwt.constants';
 import { AppModule } from '../../../src/app.module';
 import { GraphqlConfigService } from '../../../src/config/graphql.config';
 import { GraphqlTestConfigService } from '../../config/graphql.config';
 import { TypeOrmConfigService } from '../../../src/config/typeorm.config';
 import { TypeOrmTestConfigService } from '../../config/typeorm.config';
 import { userFactory } from '../../factories/user.factory';
+import { TypeOrmTestUtils } from '../../utils/typeorm-test.utils';
+import { authHeaderFactory } from '../../factories/token.factory';
+import { gql } from 'apollo-server-express';
 
-describe('AppController (e2e)', () => {
+describe('UserModule (e2e)', () => {
   let app: INestApplication;
-  let repository: Repository<User>;
+  let testUtils: TypeOrmTestUtils;
 
   beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
+    const moduleRef: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     })
       .overrideProvider(GraphqlConfigService)
@@ -28,15 +25,19 @@ describe('AppController (e2e)', () => {
       .useClass(TypeOrmTestConfigService)
       .compile();
 
-    app = moduleFixture.createNestApplication();
+    app = moduleRef.createNestApplication();
     await app.init();
-    repository = moduleFixture.get<Repository<User>>(getRepositoryToken(User));
+    testUtils = new TypeOrmTestUtils();
+    await testUtils.startServer();
   });
 
-  describe('users Query', () => {
+  afterEach(async () => {
+    await testUtils.closeServer();
+  });
+
+  describe('users query', () => {
     it('should return users', async () => {
-      const users = userFactory.buildMany(2)
-      jest.spyOn(repository, 'find').mockResolvedValueOnce(users);
+      const users = await userFactory.buildManyAsync(testUtils.saveMany, 2);
 
       const query = {
         query: gql`
@@ -55,14 +56,13 @@ describe('AppController (e2e)', () => {
         .send(query)
         .expect(200);
 
-      expect(result.body.data.users.length).toBe(2);
+      expect(result.body.data.users.length).toBe(users.length);
     });
   });
 
-  describe('user Query', () => {
+  describe('user query', () => {
     it('should return user with given username', async () => {
-      const user = userFactory.buildOne()
-      jest.spyOn(repository, 'findOne').mockResolvedValueOnce(user);
+      const user = await userFactory.buildOneAsync(testUtils.saveOne);
 
       const query = {
         query: gql`
@@ -88,13 +88,9 @@ describe('AppController (e2e)', () => {
     });
   });
 
-  describe('removeUser Mutation', () => {
+  describe('removeUser mutation', () => {
     it('should remove user, and return removed user', async () => {
-      const user = userFactory.buildOne()
-      jest.spyOn(repository, 'findOne').mockResolvedValue(user);
-      jest.spyOn(repository, 'remove').mockResolvedValueOnce(user);
-      const jwtService = new JwtService(jwtOptions);
-      const token = jwtService.sign({...user});
+      const user = await userFactory.buildOneAsync(testUtils.saveOne);
 
       const query = {
         query: gql`
@@ -112,7 +108,7 @@ describe('AppController (e2e)', () => {
       const result = await request(app.getHttpServer())
         .post('/graphql')
         .send(query)
-        .set('Authorization', `Bearer ${token}`)
+        .set('Authorization', authHeaderFactory(user))
         .expect(200);
 
       expect(result.body.data.removeUser.username).toBe(user.username);

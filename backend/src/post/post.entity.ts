@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from '../user/user.entity';
 import { Tag } from '../tag/tag.entity';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
@@ -16,7 +16,6 @@ export class Post {
 
   @Field(type => User)
   @ManyToOne(type => User)
-  @JoinColumn()
   author: User;
 
   @Field()
@@ -34,6 +33,7 @@ export class Post {
   tags: Tag[];
 
   @Field(type => [User], { nullable: false })
-  @ManyToMany(type => User)
+  @ManyToMany(type => User,
+    (user: User) => user.upvotedPosts)
   upvotedBy: User[];
 }

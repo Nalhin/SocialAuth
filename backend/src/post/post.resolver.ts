@@ -3,9 +3,9 @@ import { Post } from './post.entity';
 import { PostService } from './post.service';
 import { AddPostInput } from './input/add-post.input';
 import { UseGuards } from '@nestjs/common';
-import { GqlAuthGuard } from '../auth/jwt-auth.guard';
 import { User } from '../user/user.entity';
 import { GqlUser } from '../common/decorators/gql-user.decorator';
+import { GqlAuthGuard } from '../common/guard/gql-auth.guard';
 
 @Resolver(of => Post)
 export class PostResolver {

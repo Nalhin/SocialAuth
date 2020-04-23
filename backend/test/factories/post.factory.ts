@@ -8,6 +8,6 @@ export const postFactory = new Factory(Post)
     content: () => faker.random.words(2),
     created: faker.date.recent,
     tags: [],
-    upvotedBy: []
+    upvotedBy: [],
   })
   .done();

@@ -45,8 +45,8 @@ describe('PostResolver', () => {
 
   describe('addPost Mutation', () => {
     it('should allow adding post', async () => {
-      const author = userFactory.buildOne()
-      const post = postFactory.buildOne()
+      const author = userFactory.buildOne();
+      const post = postFactory.buildOne();
       const postWithAuthor = { ...post, author };
       jest.spyOn(service, 'save').mockResolvedValueOnce(postWithAuthor);
 
@@ -58,8 +58,8 @@ describe('PostResolver', () => {
 
   describe('upvotePost Mutation', () => {
     it('should allow upvoting a post', async () => {
-      const author = userFactory.buildOne()
-      const post = postFactory.buildOne({author})
+      const author = userFactory.buildOne();
+      const post = postFactory.buildOne({ author });
       jest.spyOn(service, 'upvote').mockResolvedValueOnce(post);
 
       const result = await resolver.upvotePost(post.id, author);

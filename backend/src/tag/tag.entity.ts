@@ -11,7 +11,7 @@ export class Tag {
   id: number;
 
   @Field()
-  @Column('varchar', { unique: true })
+  @Column( { unique: true })
   name: string;
 
   @Field(type => [Post])

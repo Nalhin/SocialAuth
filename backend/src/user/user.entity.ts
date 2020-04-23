@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Tag } from '../tag/tag.entity';
 import { Post } from '../post/post.entity';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
@@ -11,7 +11,7 @@ export class User {
   id: number;
 
   @Field()
-  @Column('varchar', { unique: true })
+  @Column( { unique: true })
   username: string;
 
   @Field()
@@ -26,6 +26,7 @@ export class User {
     type => Tag,
     (tag: Tag) => tag.followers,
   )
+  @JoinTable()
   followedTags: Tag[];
 
   @Field(type => [Post, { nullable: true }])
@@ -33,5 +34,6 @@ export class User {
     type => Post,
     (post: Post) => post.upvotedBy,
   )
+  @JoinTable()
   upvotedPosts: Post[];
 }

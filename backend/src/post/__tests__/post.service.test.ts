@@ -35,8 +35,8 @@ describe('PostService', () => {
 
   describe('save', () => {
     it('should save post', async () => {
-      const user = userFactory.buildOne()
-      const post = postFactory.buildOne({author:user})
+      const user = userFactory.buildOne();
+      const post = postFactory.buildOne({ author: user });
 
       jest.spyOn(postsRepository, 'save').mockResolvedValueOnce(post);
 
@@ -47,8 +47,8 @@ describe('PostService', () => {
   });
 
   describe('upvote', () => {
-    const user = userFactory.buildOne()
-    const post = postFactory.buildOne()
+    const user = userFactory.buildOne();
+    const post = postFactory.buildOne();
     const upvotedPost = { ...post, upvotedBy: [user] };
 
     it('should allow upvoting post', async () => {
@@ -71,7 +71,7 @@ describe('PostService', () => {
 
   describe('findAll', () => {
     it('should return posts', async () => {
-      const expected = postFactory.buildMany(2)
+      const expected = postFactory.buildMany(2);
       jest.spyOn(postsRepository, 'find').mockResolvedValueOnce(expected);
 
       const result = await service.findAll();

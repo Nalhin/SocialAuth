@@ -5,7 +5,6 @@ import { User } from '../user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { userFactory, userRegisterInputFactory } from '../../../test/factories/user.factory';
 
-
 describe('UserService', () => {
   let service: UserService;
   let repository: Repository<User>;
@@ -39,7 +38,7 @@ describe('UserService', () => {
 
   describe('findAll', () => {
     it('should return all users', async () => {
-      const users = userFactory.buildMany(2)
+      const users = userFactory.buildMany(2);
       jest.spyOn(repository, 'find').mockResolvedValueOnce(users);
 
       const result = await service.findAll();
@@ -50,7 +49,7 @@ describe('UserService', () => {
 
   describe('findOneByUsername', () => {
     it('should return user with given username', async () => {
-      const user = userFactory.buildOne()
+      const user = userFactory.buildOne();
       jest.spyOn(repository, 'findOne').mockResolvedValueOnce(user);
 
       const result = await service.findOneByUsername(user.username);

@@ -2,8 +2,8 @@ import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { UserService } from './user.service';
 import { User } from './user.entity';
 import { UseGuards } from '@nestjs/common';
-import { GqlAuthGuard } from '../auth/jwt-auth.guard';
 import { GqlUser } from '../common/decorators/gql-user.decorator';
+import { GqlAuthGuard } from '../common/guard/gql-auth.guard';
 
 @Resolver(of => User)
 export class UserResolver {
