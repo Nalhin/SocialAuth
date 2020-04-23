@@ -13,7 +13,7 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_MULTIPLE_DATABASES="${DB_DEV}","${DB_TEST}"
     env_file:
-      - ./.env
+      - ../.env
 
 volumes:
   db:
