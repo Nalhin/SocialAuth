@@ -21,6 +21,7 @@ import { TypeOrmConfigService } from './config/typeorm.config';
     }),
     ConfigModule.forRoot({
       envFilePath: join(__dirname, '..', '..', '.env'),
+      ignoreEnvFile: !!process.env.CI,
     }),
     TypeOrmModule.forRootAsync({
       useClass: TypeOrmConfigService,
