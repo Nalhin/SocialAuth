@@ -3,4 +3,4 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/nalhin/socialmedia/badge)](https://www.codefactor.io/repository/github/nalhin/socialmedia)
 [![License](https://img.shields.io/github/license/nalhin/SocialMedia)](LICENSE.md)
 
-# SocialMedia
+# Posts

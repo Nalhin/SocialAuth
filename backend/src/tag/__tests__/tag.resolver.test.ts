@@ -4,8 +4,8 @@ import { TagService } from '../tag.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Tag } from '../tag.entity';
-import { mockTagFactory } from '../../../test/fixtures/tag/tag.fixture';
-import { mockUserFactory } from '../../../test/fixtures/user/user.fixture';
+import { tagFactory } from '../../../test/factories/tag.factory';
+import { userFactory } from '../../../test/factories/user.factory';
 
 describe('TagResolver', () => {
   let resolver: TagResolver;
@@ -29,7 +29,7 @@ describe('TagResolver', () => {
 
   describe('tags Query', () => {
     it('should return tags', async () => {
-      const tags = [mockTagFactory()];
+      const tags = tagFactory.buildMany(3);
       jest.spyOn(service, 'findAll').mockResolvedValueOnce(tags);
 
       const result = await service.findAll();
@@ -40,11 +40,11 @@ describe('TagResolver', () => {
 
   describe('followTag Mutation', () => {
     it('should allow following tag', async () => {
-      const user = mockUserFactory();
-      const tag = mockTagFactory({ followers: [user] });
+      const users = userFactory.buildMany(3);
+      const tag = tagFactory.buildOne({ followers: users });
       jest.spyOn(service, 'addFollower').mockResolvedValueOnce(tag);
 
-      const result = await service.addFollower(user, tag.id);
+      const result = await service.addFollower(users[0], tag.id);
 
       expect(result).toBe(tag);
     });

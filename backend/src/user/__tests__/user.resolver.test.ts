@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserResolver } from '../user.resolver';
 import { UserService } from '../user.service';
-import { mockUserFactory } from '../../../test/fixtures/user/user.fixture';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../user.entity';
 import { Repository } from 'typeorm';
+import { userFactory } from '../../../test/factories/user.factory';
 
 describe('UserResolver', () => {
   let resolver: UserResolver;
@@ -28,8 +28,7 @@ describe('UserResolver', () => {
 
   describe('users', () => {
     it('should return an array of users', async () => {
-      const mockUser = mockUserFactory();
-      const expected = [mockUser];
+      const expected = userFactory.buildMany(3);
       jest.spyOn(service, 'findAll').mockResolvedValueOnce(expected);
 
       const result = await resolver.users();
@@ -40,7 +39,7 @@ describe('UserResolver', () => {
 
   describe('user', () => {
     it('should return given user with given userName', async () => {
-      const expected = mockUserFactory();
+      const expected = userFactory.buildOne();
       jest.spyOn(service, 'findOneByUsername').mockResolvedValueOnce(expected);
 
       const result = await resolver.user(expected.username);
@@ -51,7 +50,7 @@ describe('UserResolver', () => {
 
   describe('removeUser', () => {
     it('should removeUser', async () => {
-      const expected = mockUserFactory();
+      const expected = userFactory.buildOne()
       jest.spyOn(service, 'remove').mockResolvedValueOnce(expected);
 
       const result = await resolver.removeUser(expected.id);

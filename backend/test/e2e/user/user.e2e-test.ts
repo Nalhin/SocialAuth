@@ -1,17 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import { GraphQLModule } from '@nestjs/graphql';
-import { mockUserFactory } from '../../fixtures/user/user.fixture';
-import { UserModule } from '../../../src/user/user.module';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../../../src/user/user.entity';
 import { Repository } from 'typeorm';
-import { graphqlTestConfig } from '../graphql.test-config';
 import * as request from 'supertest';
 import { gql } from 'apollo-server-express';
 import { JwtService } from '@nestjs/jwt';
 import { jwtOptions } from '../../../src/auth/jwt.constants';
-import { JwtStrategy } from '../../../src/auth/jwt.strategy';
+import { AppModule } from '../../../src/app.module';
+import { GraphqlConfigService } from '../../../src/config/graphql.config';
+import { GraphqlTestConfigService } from '../../config/graphql.config';
+import { TypeOrmConfigService } from '../../../src/config/typeorm.config';
+import { TypeOrmTestConfigService } from '../../config/typeorm.config';
+import { userFactory } from '../../factories/user.factory';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -19,11 +20,12 @@ describe('AppController (e2e)', () => {
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [GraphQLModule.forRoot(graphqlTestConfig), UserModule],
-      providers: [JwtStrategy],
+      imports: [AppModule],
     })
-      .overrideProvider(getRepositoryToken(User))
-      .useClass(Repository)
+      .overrideProvider(GraphqlConfigService)
+      .useClass(GraphqlTestConfigService)
+      .overrideProvider(TypeOrmConfigService)
+      .useClass(TypeOrmTestConfigService)
       .compile();
 
     app = moduleFixture.createNestApplication();
@@ -33,8 +35,8 @@ describe('AppController (e2e)', () => {
 
   describe('users Query', () => {
     it('should return users', async () => {
-      const mockedValue = [mockUserFactory(), mockUserFactory()];
-      jest.spyOn(repository, 'find').mockResolvedValueOnce(mockedValue);
+      const users = userFactory.buildMany(2)
+      jest.spyOn(repository, 'find').mockResolvedValueOnce(users);
 
       const query = {
         query: gql`
@@ -59,8 +61,8 @@ describe('AppController (e2e)', () => {
 
   describe('user Query', () => {
     it('should return user with given username', async () => {
-      const mockUser = mockUserFactory();
-      jest.spyOn(repository, 'findOne').mockResolvedValueOnce(mockUser);
+      const user = userFactory.buildOne()
+      jest.spyOn(repository, 'findOne').mockResolvedValueOnce(user);
 
       const query = {
         query: gql`
@@ -73,7 +75,7 @@ describe('AppController (e2e)', () => {
           }
         `.loc.source.body,
         variables: {
-          username: mockUser.username,
+          username: user.username,
         },
       };
 
@@ -82,17 +84,17 @@ describe('AppController (e2e)', () => {
         .send(query)
         .expect(200);
 
-      expect(result.body.data.user.username).toBe(mockUser.username);
+      expect(result.body.data.user.username).toBe(user.username);
     });
   });
 
   describe('removeUser Mutation', () => {
     it('should remove user, and return removed user', async () => {
-      const mockUser = mockUserFactory();
-      jest.spyOn(repository, 'findOne').mockResolvedValue(mockUser);
-      jest.spyOn(repository, 'remove').mockResolvedValueOnce(mockUser);
+      const user = userFactory.buildOne()
+      jest.spyOn(repository, 'findOne').mockResolvedValue(user);
+      jest.spyOn(repository, 'remove').mockResolvedValueOnce(user);
       const jwtService = new JwtService(jwtOptions);
-      const token = jwtService.sign(mockUser);
+      const token = jwtService.sign({...user});
 
       const query = {
         query: gql`
@@ -103,7 +105,7 @@ describe('AppController (e2e)', () => {
           }
         `.loc.source.body,
         variables: {
-          input: mockUser.id,
+          input: user.id,
         },
       };
 
@@ -113,7 +115,7 @@ describe('AppController (e2e)', () => {
         .set('Authorization', `Bearer ${token}`)
         .expect(200);
 
-      expect(result.body.data.removeUser.username).toBe(mockUser.username);
+      expect(result.body.data.removeUser.username).toBe(user.username);
     });
   });
 

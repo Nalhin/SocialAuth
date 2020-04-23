@@ -1,27 +1,27 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Field, ID, ObjectType } from 'type-graphql';
 import { User } from '../user/user.entity';
 import { Tag } from '../tag/tag.entity';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
 @Entity()
 export class Post {
   @Field(type => ID)
   @PrimaryGeneratedColumn()
-  public id: number;
+  id: number;
 
   @Field()
-  @Column('varchar')
-  public content: string;
+  @Column()
+  content: string;
 
   @Field(type => User)
   @ManyToOne(type => User)
   @JoinColumn()
-  public author: User;
+  author: User;
 
   @Field()
   @CreateDateColumn()
-  public creationDate: Date;
+  created: Date;
 
   @Field(type => [Tag])
   @ManyToMany(
@@ -31,9 +31,9 @@ export class Post {
       cascade: ['insert', 'update'],
     },
   )
-  public tags: Tag[];
+  tags: Tag[];
 
   @Field(type => [User], { nullable: false })
   @ManyToMany(type => User)
-  public upvotedBy: User[];
+  upvotedBy: User[];
 }

@@ -4,9 +4,9 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Post } from '../post.entity';
 import { Tag } from '../../tag/tag.entity';
-import { mockPostFactory } from '../../../test/fixtures/post/post.fixture';
 import { HttpException } from '@nestjs/common';
-import { mockUserFactory } from '../../../test/fixtures/user/user.fixture';
+import { userFactory } from '../../../test/factories/user.factory';
+import { postFactory } from '../../../test/factories/post.factory';
 
 describe('PostService', () => {
   let service: PostService;
@@ -35,8 +35,8 @@ describe('PostService', () => {
 
   describe('save', () => {
     it('should save post', async () => {
-      const user = mockUserFactory();
-      const post = mockPostFactory({ author: user });
+      const user = userFactory.buildOne()
+      const post = postFactory.buildOne({author:user})
 
       jest.spyOn(postsRepository, 'save').mockResolvedValueOnce(post);
 
@@ -47,8 +47,8 @@ describe('PostService', () => {
   });
 
   describe('upvote', () => {
-    const user = mockUserFactory();
-    const post = mockPostFactory();
+    const user = userFactory.buildOne()
+    const post = postFactory.buildOne()
     const upvotedPost = { ...post, upvotedBy: [user] };
 
     it('should allow upvoting post', async () => {
@@ -71,7 +71,7 @@ describe('PostService', () => {
 
   describe('findAll', () => {
     it('should return posts', async () => {
-      const expected = [mockPostFactory()];
+      const expected = postFactory.buildMany(2)
       jest.spyOn(postsRepository, 'find').mockResolvedValueOnce(expected);
 
       const result = await service.findAll();

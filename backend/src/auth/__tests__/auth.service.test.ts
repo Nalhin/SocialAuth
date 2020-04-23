@@ -5,7 +5,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../../user/user.entity';
 import { Repository } from 'typeorm';
-import { mockUserFactory, mockUserRegisterInputFactory } from '../../../test/fixtures/user/user.fixture';
+import { userFactory, userRegisterInputFactory } from '../../../test/factories/user.factory';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -30,7 +30,7 @@ describe('AuthService', () => {
 
   describe('signToken', () => {
     it('should generate jwt for user', async () => {
-      const user = mockUserFactory();
+      const user = userFactory.buildOne();
 
       const response = await authService.signToken(user);
 
@@ -40,9 +40,9 @@ describe('AuthService', () => {
 
   describe('registerUser', () => {
     it('should save user and sign token', async () => {
-      const userRegisterInput = mockUserRegisterInputFactory();
-      const mockUser = mockUserFactory(userRegisterInput);
-      jest.spyOn(userService, 'save').mockResolvedValueOnce(mockUser);
+      const userRegisterInput = userRegisterInputFactory.buildOne();
+      const user = userFactory.buildOne(userRegisterInput);
+      jest.spyOn(userService, 'save').mockResolvedValueOnce(user);
 
       const response = await authService.registerUser(userRegisterInput);
 
@@ -52,7 +52,7 @@ describe('AuthService', () => {
 
   describe('validateUser', () => {
     it('should check if user with the same password exists', async () => {
-      const mockUser = mockUserFactory();
+      const mockUser = userFactory.buildOne();
       jest
         .spyOn(userService, 'findOneByUsername')
         .mockResolvedValueOnce(mockUser);

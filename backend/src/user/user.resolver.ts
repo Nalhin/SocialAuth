@@ -1,10 +1,9 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { UserService } from './user.service';
 import { User } from './user.entity';
-import { ID } from 'type-graphql';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from '../auth/jwt-auth.guard';
-import { CurrentUserDecorator } from '../decorators/current-user.decorator';
+import { GqlUser } from '../common/decorators/gql-user.decorator';
 
 @Resolver(of => User)
 export class UserResolver {
@@ -22,7 +21,7 @@ export class UserResolver {
 
   @Query(returns => User)
   @UseGuards(GqlAuthGuard)
-  async me(@CurrentUserDecorator() user: User): Promise<User> {
+  async me(@GqlUser() user: User): Promise<User> {
     return user;
   }
 

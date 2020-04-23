@@ -5,8 +5,8 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Post } from '../post.entity';
 import { Repository } from 'typeorm';
 import { Tag } from '../../tag/tag.entity';
-import { mockPostFactory } from '../../../test/fixtures/post/post.fixture';
-import { mockUserFactory } from '../../../test/fixtures/user/user.fixture';
+import { postFactory } from '../../../test/factories/post.factory';
+import { userFactory } from '../../../test/factories/user.factory';
 
 describe('PostResolver', () => {
   let resolver: PostResolver;
@@ -34,7 +34,7 @@ describe('PostResolver', () => {
 
   describe('posts Query', () => {
     it('should return posts', async () => {
-      const posts = [mockPostFactory()];
+      const posts = postFactory.buildMany(3);
       jest.spyOn(service, 'findAll').mockResolvedValueOnce(posts);
 
       const result = await service.findAll();
@@ -45,8 +45,8 @@ describe('PostResolver', () => {
 
   describe('addPost Mutation', () => {
     it('should allow adding post', async () => {
-      const post = mockPostFactory();
-      const author = mockUserFactory();
+      const author = userFactory.buildOne()
+      const post = postFactory.buildOne()
       const postWithAuthor = { ...post, author };
       jest.spyOn(service, 'save').mockResolvedValueOnce(postWithAuthor);
 
@@ -58,14 +58,13 @@ describe('PostResolver', () => {
 
   describe('upvotePost Mutation', () => {
     it('should allow upvoting a post', async () => {
-      const post = mockPostFactory();
-      const author = mockUserFactory();
-      const postWithAuthor = { ...post, author };
-      jest.spyOn(service, 'upvote').mockResolvedValueOnce(postWithAuthor);
+      const author = userFactory.buildOne()
+      const post = postFactory.buildOne({author})
+      jest.spyOn(service, 'upvote').mockResolvedValueOnce(post);
 
       const result = await resolver.upvotePost(post.id, author);
 
-      expect(result).toBe(postWithAuthor);
+      expect(result).toBe(post);
     });
   });
 });

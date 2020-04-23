@@ -24,7 +24,7 @@ jobs:
       - name: Install dependencies
         run: npm install
         working-directory: ./backend
-      - name: Run tests
+      - name: Run lint
         run: npm run lint
         working-directory: ./backend
         env:
@@ -64,6 +64,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Setup docker
+        run: docker-compose up -d
       - name: Setup Node
         uses: actions/setup-node@v1
         with:

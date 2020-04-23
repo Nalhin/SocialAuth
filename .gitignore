@@ -1,6 +1,3 @@
+schema.graphql
 .idea
-src/user/user.module.ts
-src/user/user.resolver.spec.ts
-src/user/user.resolver.ts
-src/user/user.service.spec.ts
-src/user/user.service.ts
+.env
