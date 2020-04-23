@@ -61,6 +61,10 @@ jobs:
   backend-e2e-tests:
     name: Backend E2E tests
     runs-on: ubuntu-latest
+    env:
+      DB_USER=${{secrets.DB_USER}}
+      DB_PASSWORD=${{secrets.DB_PASSWORD}}
+      DB_TEST=${{secrets.DB_TEST}}
     steps:
       - name: Checkout
         uses: actions/checkout@v2

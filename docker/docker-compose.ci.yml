@@ -4,14 +4,12 @@ services:
   db:
     container_name: SocialMediaDB
     image: postgres:latest
-    volumes:
-      - ./scripts/postgres:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
     environment:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_MULTIPLE_DATABASES="${DB_DEV}","${DB_TEST}"
+      - POSTGRES_DATABASE=${DB_TEST}
 
 volumes:
   db:
