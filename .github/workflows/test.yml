@@ -69,7 +69,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Setup docker
-        run: docker-compose --f docker-compose.ci.yml up
+        run: docker-compose -d --f docker-compose.ci.yml up -d
         working-directory: ./docker
       - name: Setup Node
         uses: actions/setup-node@v1
