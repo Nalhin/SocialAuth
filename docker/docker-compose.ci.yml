@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   db:
-    container_name: SocialMediaDB
+    container_name: TutoringDB
     image: postgres:latest
     ports:
       - "5432:5432"

@@ -1,10 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserResolver } from '../user.resolver';
 import { UserService } from '../user.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { User } from '../user.entity';
-import { Repository } from 'typeorm';
 import { userFactory } from '../../../test/factories/user.factory';
+import { UserRepository } from '../user.repository';
 
 describe('UserResolver', () => {
   let resolver: UserResolver;
@@ -12,14 +10,7 @@ describe('UserResolver', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        UserResolver,
-        UserService,
-        {
-          provide: getRepositoryToken(User),
-          useClass: Repository,
-        },
-      ],
+      providers: [UserResolver, UserService, UserRepository],
     }).compile();
 
     resolver = module.get<UserResolver>(UserResolver);

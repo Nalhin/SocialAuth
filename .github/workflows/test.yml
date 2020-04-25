@@ -65,6 +65,8 @@ jobs:
       DB_USER: ${{secrets.DB_USER}}
       DB_PASSWORD: ${{secrets.DB_PASSWORD}}
       DB_TEST: ${{secrets.DB_TEST}}
+      JWT_SECRET: ${{secrets.JWT_SECRET}}
+      JWT_EXPIRES_IN: ${{secrets.JWT_EXPIRES_IN}}
       CI: true
     steps:
       - name: Checkout

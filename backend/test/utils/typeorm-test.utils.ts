@@ -19,9 +19,7 @@ export class TypeOrmTestUtils {
 
   saveOne = async (entity) => {
     try {
-      const repository = this.connection.getRepository(
-        entity.constructor.name,
-      );
+      const repository = this.connection.getRepository(entity.constructor.name);
       return await repository.save(entity);
     } catch (e) {
       throw new Error(

@@ -30,7 +30,6 @@ describe('AuthModule (e2e)', () => {
     await testUtils.startServer();
   });
 
-
   afterEach(async () => {
     await testUtils.closeServer();
   });
@@ -43,9 +42,11 @@ describe('AuthModule (e2e)', () => {
         query: gql`
           mutation register($userInput: UserRegisterInput!) {
             register(userRegisterInput: $userInput) {
-              username
-              id
-              email
+              user {
+                username
+                id
+                email
+              }
               token
             }
           }
@@ -60,7 +61,7 @@ describe('AuthModule (e2e)', () => {
         .send(query)
         .expect(200);
 
-      expect(result.body.data.register.username).toBe(
+      expect(result.body.data.register.user.username).toBe(
         userRegisterInput.username,
       );
       expect(result.body.data.register.token).toBeTruthy();
@@ -70,15 +71,20 @@ describe('AuthModule (e2e)', () => {
   describe('login mutation', () => {
     it('should validate login request', async () => {
       const userLoginInput = userLoginInputFactory.buildOne();
-      const user = await userFactory.buildOneAsync(testUtils.saveOne, userLoginInput);
+      const user = await userFactory.buildOneAsync(
+        testUtils.saveOne,
+        userLoginInput,
+      );
 
       const query = {
         query: gql`
           mutation login($userInput: UserLoginInput!) {
             login(userLoginInput: $userInput) {
-              username
-              id
-              email
+              user {
+                username
+                id
+                email
+              }
               token
             }
           }
@@ -93,7 +99,7 @@ describe('AuthModule (e2e)', () => {
         .send(query)
         .expect(200);
 
-      expect(result.body.data.login.username).toBe(user.username);
+      expect(result.body.data.login.user.username).toBe(user.username);
       expect(result.body.data.login.token).toBeTruthy();
     });
   });

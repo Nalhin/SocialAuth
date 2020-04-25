@@ -1,39 +1,31 @@
-import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { Tag } from '../tag/tag.entity';
-import { Post } from '../post/post.entity';
+import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
+import * as bcrypt from 'bcrypt';
 
 @ObjectType()
 @Entity()
 export class User {
-  @Field(type => ID)
+  @Field((type) => ID)
   @PrimaryGeneratedColumn()
   id: number;
 
   @Field()
-  @Column( { unique: true })
+  @Column({ unique: true })
   username: string;
 
   @Field()
-  @Column()
+  @Column({ unique: true })
   email: string;
 
   @Column()
   password: string;
 
-  @Field(type => [Tag, { nullable: true }])
-  @ManyToMany(
-    type => Tag,
-    (tag: Tag) => tag.followers,
-  )
-  @JoinTable()
-  followedTags: Tag[];
+  @BeforeInsert()
+  async hashPassword() {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
 
-  @Field(type => [Post, { nullable: true }])
-  @ManyToMany(
-    type => Post,
-    (post: Post) => post.upvotedBy,
-  )
-  @JoinTable()
-  upvotedPosts: Post[];
+  async comparePassword(password: string) {
+    return bcrypt.compare(password, this.password);
+  }
 }

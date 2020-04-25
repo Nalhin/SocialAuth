@@ -1,22 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
-import { Repository } from 'typeorm';
 import { UserRegisterInput } from '../auth/input/user-register.input';
+import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UserService {
-  constructor(
-    @InjectRepository(User)
-    private readonly usersRepository: Repository<User>,
-  ) {}
+  constructor(private readonly usersRepository: UserRepository) {}
 
   save(user: UserRegisterInput): Promise<User> {
     return this.usersRepository.save(user);
   }
 
-  findAll(properties?: Partial<User>): Promise<User[]> {
-    return this.usersRepository.find(properties);
+  findAll(): Promise<User[]> {
+    return this.usersRepository.find();
   }
 
   findOneByUsername(username: string): Promise<User> {
@@ -26,5 +22,12 @@ export class UserService {
   async remove(id: number): Promise<User> {
     const user = await this.usersRepository.findOne({ id });
     return this.usersRepository.remove(user);
+  }
+
+  existsByCredentials(user: Partial<User>): Promise<boolean> {
+    return this.usersRepository.existsByEmailOrUsername(
+      user.email,
+      user.password,
+    );
   }
 }

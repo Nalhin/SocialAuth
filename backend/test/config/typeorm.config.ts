@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
+import { getMetadataArgsStorage } from 'typeorm';
 
 @Injectable()
 export class TypeOrmTestConfigService implements TypeOrmOptionsFactory {
@@ -7,14 +8,14 @@ export class TypeOrmTestConfigService implements TypeOrmOptionsFactory {
     return {
       type: 'postgres',
       host: 'localhost',
-      port: 5432,
+      port: +process.env.DB_PORT,
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_TEST,
-      autoLoadEntities: true,
+      entities: getMetadataArgsStorage().tables.map((t) => t.target),
       keepConnectionAlive: true,
       dropSchema: true,
-      synchronize: true
+      synchronize: true,
     };
   }
 }

@@ -5,27 +5,27 @@ import { UseGuards } from '@nestjs/common';
 import { GqlUser } from '../common/decorators/gql-user.decorator';
 import { GqlAuthGuard } from '../common/guard/gql-auth.guard';
 
-@Resolver(of => User)
+@Resolver((of) => User)
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
-  @Query(returns => [User])
+  @Query((returns) => [User])
   async users(): Promise<User[]> {
     return this.userService.findAll();
   }
 
-  @Query(returns => User)
+  @Query((returns) => User)
   async user(@Args('username') username: string): Promise<User> {
     return this.userService.findOneByUsername(username);
   }
 
-  @Query(returns => User)
+  @Query((returns) => User)
   @UseGuards(GqlAuthGuard)
   async me(@GqlUser() user: User): Promise<User> {
     return user;
   }
 
-  @Mutation(returns => User)
+  @Mutation((returns) => User)
   @UseGuards(GqlAuthGuard)
   async removeUser(
     @Args({ name: 'id', type: () => ID }) id: number,

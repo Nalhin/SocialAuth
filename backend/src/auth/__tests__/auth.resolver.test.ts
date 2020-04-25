@@ -3,15 +3,13 @@ import { AuthResolver } from '../auth.resolver';
 import { AuthService } from '../auth.service';
 import { UserService } from '../../user/user.service';
 import { JwtModule } from '@nestjs/jwt';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { User } from '../../user/user.entity';
-import { Repository } from 'typeorm';
 import {
   authUserFactory,
   userFactory,
   userLoginInputFactory,
   userRegisterInputFactory,
 } from '../../../test/factories/user.factory';
+import { UserRepository } from '../../user/user.repository';
 
 describe('AuthResolver', () => {
   let resolver: AuthResolver;
@@ -20,15 +18,7 @@ describe('AuthResolver', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [JwtModule.register({ secret: 'secret' })],
-      providers: [
-        AuthResolver,
-        AuthService,
-        UserService,
-        {
-          provide: getRepositoryToken(User),
-          useClass: Repository,
-        },
-      ],
+      providers: [AuthResolver, AuthService, UserService, UserRepository],
     }).compile();
 
     resolver = module.get<AuthResolver>(AuthResolver);
@@ -42,7 +32,8 @@ describe('AuthResolver', () => {
   describe('register', () => {
     it('should register user', async () => {
       const userRegisterInput = userRegisterInputFactory.buildOne();
-      const expected = authUserFactory.buildOne(userRegisterInput);
+      const user = userFactory.buildOne(userRegisterInput);
+      const expected = authUserFactory.buildOne({ user });
       jest.spyOn(authService, 'registerUser').mockResolvedValueOnce(expected);
 
       const result = await resolver.register(userRegisterInput);
@@ -55,8 +46,10 @@ describe('AuthResolver', () => {
     it('should login user', async () => {
       const userLoginInput = userLoginInputFactory.buildOne();
       const user = userFactory.buildOne(userLoginInput);
-      const expected = authUserFactory.buildOne(user);
-      jest.spyOn(authService, 'validateUser').mockResolvedValueOnce(user);
+      const expected = authUserFactory.buildOne({ user });
+      jest
+        .spyOn(authService, 'validateCredentials')
+        .mockResolvedValueOnce(user);
       jest.spyOn(authService, 'signToken').mockResolvedValueOnce(expected);
 
       const result = await resolver.login(userLoginInput);

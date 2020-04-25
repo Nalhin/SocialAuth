@@ -6,8 +6,10 @@ import { join } from 'path';
 export class GraphqlConfigService implements GqlOptionsFactory {
   createGqlOptions(): GqlModuleOptions {
     return {
-      autoSchemaFile: join(__dirname, '..', '..', 'schema.graphql'),
+      autoSchemaFile: join(process.cwd(), '..', 'schema.graphql'),
       context: ({ req }) => ({ req }),
+      debug: process.env.NODE_ENV === 'development',
+      playground: process.env.NODE_ENV === 'development',
     };
   }
 }

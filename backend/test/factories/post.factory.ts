@@ -7,7 +7,5 @@ export const postFactory = new Factory(Post)
   .props({
     content: () => faker.random.words(2),
     created: faker.date.recent,
-    tags: [],
-    upvotedBy: [],
   })
   .done();
