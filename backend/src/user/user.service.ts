@@ -1,13 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { User } from './user.entity';
-import { UserRegisterInput } from '../auth/input/user-register.input';
 import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UserService {
   constructor(private readonly usersRepository: UserRepository) {}
 
-  save(user: UserRegisterInput): Promise<User> {
+  save(user: Partial<User>): Promise<User> {
     return this.usersRepository.save(user);
   }
 

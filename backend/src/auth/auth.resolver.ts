@@ -1,29 +1,67 @@
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
-import { UserLoginInput } from './input/user-login.input';
+import { LoginUserInput } from './inputs/login-user.input';
 import { AuthService } from './auth.service';
-import { UserRegisterInput } from './input/user-register.input';
-import { AuthUserResponse } from './response/auth-user.response';
+import { RegisterUserInput } from './inputs/register-user.input';
+import {
+  UnauthorizedException,
+  UnprocessableEntityException,
+  UseFilters,
+  UsePipes,
+} from '@nestjs/common';
+import { InputValidationPipe } from '../common/pipes/input-validation.pipe';
+import { InputValidationExceptionFilter } from '../common/filters/input-validation-exception.filter';
+import { RegisterUserResultUnion } from './results/register-user.result';
+import { InvalidCredentialsResponse } from './responses/invalid-credentials.response';
+import { LoginUserResultUnion } from './results/login-user.result';
+import { CredentialsTakenResponse } from './responses/credentials-taken.response';
 
-@Resolver((of) => AuthUserResponse)
+@Resolver()
 export class AuthResolver {
   constructor(private readonly authService: AuthService) {}
 
-  @Mutation((returns) => AuthUserResponse)
+  @Mutation((returns) => [LoginUserResultUnion])
   async login(
-    @Args('userLoginInput') userLoginInput: UserLoginInput,
-  ): Promise<AuthUserResponse> {
-    const user = await this.authService.validateCredentials(
-      userLoginInput.username,
-      userLoginInput.password,
-    );
-    return this.authService.signToken(user);
+    @Args('loginUserInput') userLoginInput: LoginUserInput,
+  ): Promise<Array<typeof LoginUserResultUnion>> {
+    try {
+      const user = await this.authService.validateCredentials(
+        userLoginInput.username,
+        userLoginInput.password,
+      );
+      const authUser = await this.authService.signToken(user);
+      return [authUser];
+    } catch (e) {
+      if (e instanceof UnauthorizedException) {
+        return [
+          new InvalidCredentialsResponse({
+            message: 'Invalid credentials provided.',
+            providedUsername: userLoginInput.username,
+          }),
+        ];
+      }
+    }
   }
 
-  @Mutation((returns) => AuthUserResponse)
+  @UseFilters(new InputValidationExceptionFilter())
+  @UsePipes(new InputValidationPipe())
+  @Mutation((returns) => [RegisterUserResultUnion])
   async register(
-    @Args('userRegisterInput')
-    userRegisterInput: UserRegisterInput,
-  ): Promise<AuthUserResponse> {
-    return this.authService.registerUser(userRegisterInput);
+    @Args('registerUserInput')
+    registerUserInput: RegisterUserInput,
+  ): Promise<Array<typeof RegisterUserResultUnion>> {
+    try {
+      const authUser = await this.authService.registerUser(registerUserInput);
+      return [authUser];
+    } catch (e) {
+      if (e instanceof UnprocessableEntityException) {
+        return [
+          new CredentialsTakenResponse({
+            message: 'Credentials are already taken.',
+            providedEmail: registerUserInput.email,
+            providedUsername: registerUserInput.username,
+          }),
+        ];
+      }
+    }
   }
 }

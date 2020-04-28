@@ -1,10 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { User } from '../user/user.entity';
-import { UserRegisterInput } from './input/user-register.input';
-import { AuthUserResponse } from './response/auth-user.response';
-import { GraphQLError } from 'graphql';
+import { AuthUserResponse } from './responses/auth-user.response';
+import { RegisterUserInput } from './inputs/register-user.input';
 
 @Injectable()
 export class AuthService {
@@ -16,22 +19,22 @@ export class AuthService {
   async validateCredentials(username: string, password: string): Promise<User> {
     const user = await this.userService.findOneByUsername(username);
     if (!(await user?.comparePassword(password))) {
-      throw new GraphQLError('Invalid credentials provided.');
+      throw new UnauthorizedException();
     }
     return user;
   }
 
   async signToken(user: User): Promise<AuthUserResponse> {
     const payload = { username: user.username, sub: user.id };
-    return {
+    return new AuthUserResponse({
       user,
       token: this.jwtService.sign(payload),
-    };
+    });
   }
 
-  async registerUser(user: UserRegisterInput): Promise<AuthUserResponse> {
+  async registerUser(user: RegisterUserInput): Promise<AuthUserResponse> {
     if (await this.userService.existsByCredentials(user)) {
-      throw new GraphQLError('Credentials are already taken');
+      throw new UnprocessableEntityException();
     }
 
     const returnedUser = await this.userService.save(user);

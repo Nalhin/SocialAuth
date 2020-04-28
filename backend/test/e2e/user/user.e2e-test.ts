@@ -10,6 +10,7 @@ import { userFactory } from '../../factories/user.factory';
 import { TypeOrmTestUtils } from '../../utils/typeorm-test.utils';
 import { authHeaderFactory } from '../../factories/token.factory';
 import { gql } from 'apollo-server-express';
+import { GQL } from '../constants';
 
 describe('UserModule (e2e)', () => {
   let app: INestApplication;
@@ -36,24 +37,26 @@ describe('UserModule (e2e)', () => {
   });
 
   describe('users query', () => {
+    const query = gql`
+      query {
+        users {
+          username
+          id
+          email
+        }
+      }
+    `.loc.source.body;
+
     it('should return users', async () => {
       const users = await userFactory.buildManyAsync(testUtils.saveMany, 2);
 
-      const query = {
-        query: gql`
-          query {
-            users {
-              username
-              id
-              email
-            }
-          }
-        `.loc.source.body,
+      const gqlReg = {
+        query,
       };
 
       const result = await request(app.getHttpServer())
-        .post('/graphql')
-        .send(query)
+        .post(GQL)
+        .send(gqlReg)
         .expect(200);
 
       expect(result.body.data.users.length).toBe(users.length);
@@ -61,27 +64,29 @@ describe('UserModule (e2e)', () => {
   });
 
   describe('user query', () => {
+    const query = gql`
+      query user($username: String!) {
+        user(username: $username) {
+          username
+          id
+          email
+        }
+      }
+    `.loc.source.body;
+
     it('should return user with given username', async () => {
       const user = await userFactory.buildOneAsync(testUtils.saveOne);
 
-      const query = {
-        query: gql`
-          query user($username: String!) {
-            user(username: $username) {
-              username
-              id
-              email
-            }
-          }
-        `.loc.source.body,
+      const gqlReg = {
+        query,
         variables: {
           username: user.username,
         },
       };
 
       const result = await request(app.getHttpServer())
-        .post('/graphql')
-        .send(query)
+        .post(GQL)
+        .send(gqlReg)
         .expect(200);
 
       expect(result.body.data.user.username).toBe(user.username);
@@ -89,25 +94,27 @@ describe('UserModule (e2e)', () => {
   });
 
   describe('removeUser mutation', () => {
+    const query = gql`
+      mutation remove($input: ID!) {
+        removeUser(id: $input) {
+          username
+        }
+      }
+    `.loc.source.body;
+
     it('should remove user, and return removed user', async () => {
       const user = await userFactory.buildOneAsync(testUtils.saveOne);
 
-      const query = {
-        query: gql`
-          mutation remove($input: ID!) {
-            removeUser(id: $input) {
-              username
-            }
-          }
-        `.loc.source.body,
+      const gqlReq = {
+        query,
         variables: {
           input: user.id,
         },
       };
 
       const result = await request(app.getHttpServer())
-        .post('/graphql')
-        .send(query)
+        .post(GQL)
+        .send(gqlReq)
         .set('Authorization', authHeaderFactory(user))
         .expect(200);
 

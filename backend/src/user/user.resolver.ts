@@ -3,7 +3,7 @@ import { UserService } from './user.service';
 import { User } from './user.entity';
 import { UseGuards } from '@nestjs/common';
 import { GqlUser } from '../common/decorators/gql-user.decorator';
-import { GqlAuthGuard } from '../common/guard/gql-auth.guard';
+import { GqlAuthGuard } from '../common/guards/gql-auth.guard';
 
 @Resolver((of) => User)
 export class UserResolver {

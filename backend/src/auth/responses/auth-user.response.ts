@@ -8,4 +8,8 @@ export class AuthUserResponse {
 
   @Field()
   token: string;
+
+  constructor(partial?: Partial<AuthUserResponse>) {
+    Object.assign(this, partial);
+  }
 }

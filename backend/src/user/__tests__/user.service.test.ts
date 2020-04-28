@@ -1,6 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from '../user.service';
-import { userFactory, userRegisterInputFactory } from '../../../test/factories/user.factory';
+import {
+  registerUserInputBuilder,
+  userFactory,
+} from '../../../test/factories/user.factory';
 import { UserRepository } from '../user.repository';
 
 describe('UserService', () => {
@@ -18,7 +21,7 @@ describe('UserService', () => {
 
   describe('save', () => {
     it('should save user', async () => {
-      const userRegisterInput = userRegisterInputFactory.buildOne();
+      const userRegisterInput = registerUserInputBuilder.buildOne();
       const user = userFactory.buildOne(userRegisterInput);
       jest.spyOn(repository, 'save').mockResolvedValueOnce(user);
 
