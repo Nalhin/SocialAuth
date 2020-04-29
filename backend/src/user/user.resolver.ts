@@ -3,7 +3,7 @@ import { UserService } from './user.service';
 import { User } from './user.entity';
 import { UseGuards } from '@nestjs/common';
 import { GqlUser } from '../common/decorators/gql-user.decorator';
-import { GqlAuthGuard } from '../common/guards/gql-auth.guard';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
 @Resolver((of) => User)
 export class UserResolver {
@@ -20,13 +20,13 @@ export class UserResolver {
   }
 
   @Query((returns) => User)
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(JwtAuthGuard)
   async me(@GqlUser() user: User): Promise<User> {
     return user;
   }
 
   @Mutation((returns) => User)
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(JwtAuthGuard)
   async removeUser(
     @Args({ name: 'id', type: () => ID }) id: number,
   ): Promise<User> {

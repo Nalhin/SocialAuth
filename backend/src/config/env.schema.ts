@@ -20,4 +20,8 @@ export const envSchema = Joi.object({
   }),
   JWT_SECRET: Joi.string().required(),
   JWT_EXPIRES_IN: Joi.string().required(),
+  FACEBOOK_KEY: Joi.string(),
+  FACEBOOK_SECRET: Joi.string(),
+  GOOGLE_KEY: Joi.string(),
+  GOOGLE_SECRET: Joi.string(),
 });

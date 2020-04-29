@@ -64,4 +64,14 @@ export class AuthResolver {
       }
     }
   }
+
+  // @UseGuards(SocialAuthGuard(SocialAuthTypes.FACEBOOK))
+  // @Mutation((returns) => [RegisterUserResultUnion])
+  // async registerGoogle(
+  //   @GqlUser() user: User,
+  // ): Promise<Array<typeof RegisterUserResultUnion>> {
+  //   try {
+  //     return null;
+  //   } catch (e) {}
+  // }
 }
