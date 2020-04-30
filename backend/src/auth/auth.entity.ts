@@ -1,18 +1,33 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+} from 'typeorm';
+import { User } from '../user/user.entity';
+import { registerEnumType } from '@nestjs/graphql';
 
-export enum SocialAuthTypes {
+export enum SocialAuthProviders {
   FACEBOOK = 'facebook',
   GOOGLE = 'google',
 }
+
+registerEnumType(SocialAuthProviders, {
+  name: 'SocialAuthProviders',
+});
 
 @Entity()
 export class AuthProviders {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ enum: SocialAuthTypes })
-  type: SocialAuthTypes;
+  @Column({ enum: SocialAuthProviders })
+  provider: SocialAuthProviders;
 
   @Column()
-  providerId: string;
+  socialId: string;
+
+  @ManyToOne((type) => User)
+  user: User;
 }

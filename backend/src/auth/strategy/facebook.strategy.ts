@@ -1,11 +1,16 @@
 import { PassportStrategy } from '@nestjs/passport';
-import { Profile, Strategy, VerifyCallback } from 'passport-google-oauth20';
-import { Inject, UnauthorizedException } from '@nestjs/common';
+import { Profile, Strategy, VerifyCallback } from 'passport-google-token';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import facebookConfig from '../../config/facebook.config';
 import { UserService } from '../../user/user.service';
+import { SocialAuthProviders } from '../auth.entity';
 
-export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
+@Injectable()
+export class FacebookStrategy extends PassportStrategy(
+  Strategy,
+  SocialAuthProviders.FACEBOOK,
+) {
   constructor(
     private userService: UserService,
     @Inject(facebookConfig.KEY)
@@ -18,7 +23,6 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
   }
 
   async validate(
-    request: any,
     accessToken: string,
     refreshToken: string,
     profile: Profile,

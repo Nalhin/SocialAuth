@@ -45,8 +45,8 @@ describe('AuthModule (e2e)', () => {
 
   describe('login mutation', () => {
     const query = gql`
-      mutation login($userInput: LoginUserInput!) {
-        login(loginUserInput: $userInput) {
+      mutation login($input: LoginUserInput!) {
+        login(input: $input) {
           __typename
           ... on ErrorResponse {
             message
@@ -77,7 +77,7 @@ describe('AuthModule (e2e)', () => {
       const gqlReq = {
         query,
         variables: {
-          userInput: userLoginInput,
+          input: userLoginInput,
         },
       };
 
@@ -102,7 +102,7 @@ describe('AuthModule (e2e)', () => {
       const gqlReq = {
         query,
         variables: {
-          userInput: userLoginInput,
+          input: userLoginInput,
         },
       };
 
@@ -119,8 +119,8 @@ describe('AuthModule (e2e)', () => {
 
   describe('register mutation', () => {
     const query = gql`
-      mutation register($userInput: RegisterUserInput!) {
-        register(registerUserInput: $userInput) {
+      mutation register($input: RegisterUserInput!) {
+        register(input: $input) {
           __typename
           ... on ErrorResponse {
             message
@@ -153,7 +153,7 @@ describe('AuthModule (e2e)', () => {
       const gqlReq = {
         query,
         variables: {
-          userInput: registerUserInput,
+          input: registerUserInput,
         },
       };
 
@@ -177,7 +177,7 @@ describe('AuthModule (e2e)', () => {
       const gqlReq = {
         query,
         variables: {
-          userInput: registerUserInput,
+          input: registerUserInput,
         },
       };
 
@@ -198,7 +198,7 @@ describe('AuthModule (e2e)', () => {
       const gqlReq = {
         query,
         variables: {
-          userInput: registerUserInput,
+          input: registerUserInput,
         },
       };
 

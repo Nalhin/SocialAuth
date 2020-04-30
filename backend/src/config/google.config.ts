@@ -1,7 +1,6 @@
 import { registerAs } from '@nestjs/config';
 
 export default registerAs('google', () => ({
-  consumerKey: process.env.GOOGLE_KEY,
+  clientID: process.env.GOOGLE_ID,
   consumerSecret: process.env.GOOGLE_SECRET,
-  scope: ['profile', 'email'],
 }));

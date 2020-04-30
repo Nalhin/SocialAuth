@@ -11,6 +11,7 @@ import {
   UnauthorizedException,
   UnprocessableEntityException,
 } from '@nestjs/common';
+import { AuthProvidersRepository } from '../auth.repository';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -19,7 +20,12 @@ describe('AuthService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [JwtModule.register({ secret: 'secret' })],
-      providers: [AuthService, UserService, UserRepository],
+      providers: [
+        AuthService,
+        UserService,
+        UserRepository,
+        AuthProvidersRepository,
+      ],
     }).compile();
 
     authService = module.get<AuthService>(AuthService);

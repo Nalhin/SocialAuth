@@ -17,6 +17,7 @@ import {
 import { CredentialsTakenResponse } from '../responses/credentials-taken.response';
 import { AuthUserResponse } from '../responses/auth-user.response';
 import { InvalidCredentialsResponse } from '../responses/invalid-credentials.response';
+import { AuthProvidersRepository } from '../auth.repository';
 
 describe('AuthResolver', () => {
   let authResolver: AuthResolver;
@@ -25,7 +26,13 @@ describe('AuthResolver', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [JwtModule.register({ secret: 'secret' })],
-      providers: [AuthResolver, AuthService, UserService, UserRepository],
+      providers: [
+        AuthResolver,
+        AuthService,
+        UserService,
+        UserRepository,
+        AuthProvidersRepository,
+      ],
     }).compile();
 
     authResolver = module.get<AuthResolver>(AuthResolver);
