@@ -1,31 +1,40 @@
-import {
-  Injectable,
-  UnauthorizedException,
-  UnprocessableEntityException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { User } from '../user/user.entity';
 import { AuthUserResponse } from './responses/auth-user.response';
 import { RegisterUserInput } from './inputs/register-user.input';
 import { Profile } from 'passport';
-import { AuthProvidersRepository } from './auth.repository';
-import { SocialAuthProviders } from './auth.entity';
+import { SocialAuthProviderTypes } from './auth.entity';
+import { SocialAuthProviderRepository } from './auth.repository';
+import { randomStringGenerator } from '@nestjs/common/utils/random-string-generator.util';
+import { CredentialsTakenResponse } from './responses/credentials-taken.response';
+import { InvalidCredentialsResponse } from './responses/invalid-credentials.response';
+import { Either, either } from '../common/utils/either';
+import { SocialAlreadyAssignedResponse } from './responses/social-already-assigned.response';
+import { SocialNotRegisteredResponse } from './responses/social-not-registered.response';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
-    private readonly authProvidersRepository: AuthProvidersRepository,
+    private readonly socialAuthProvidersRepository: SocialAuthProviderRepository,
   ) {}
 
-  async validateCredentials(username: string, password: string): Promise<User> {
+  async validateCredentials(
+    username: string,
+    password: string,
+  ): Promise<Either<InvalidCredentialsResponse, User>> {
     const user = await this.userService.findOneByUsername(username);
     if (!(await user?.comparePassword(password))) {
-      throw new UnauthorizedException();
+      return either.error(
+        new InvalidCredentialsResponse({
+          providedUsername: username,
+        }),
+      );
     }
-    return user;
+    return either.of(user);
   }
 
   async signToken(user: User): Promise<AuthUserResponse> {
@@ -36,51 +45,71 @@ export class AuthService {
     });
   }
 
-  async registerUser(user: RegisterUserInput): Promise<AuthUserResponse> {
+  async registerUser(
+    user: RegisterUserInput,
+  ): Promise<Either<CredentialsTakenResponse, User>> {
     if (await this.userService.existsByCredentials(user)) {
-      throw new UnprocessableEntityException();
+      return either.error(
+        new CredentialsTakenResponse({
+          providedEmail: user.email,
+          providedUsername: user.username,
+        }),
+      );
     }
-
     const returnedUser = await this.userService.save(user);
-    return this.signToken(returnedUser);
+    return either.of(returnedUser);
   }
 
-  async registerSocial(profile: Profile, username: string) {
-    const email = profile.emails[0].value;
+  async loginSocial(
+    profile: Profile,
+    provider: SocialAuthProviderTypes,
+  ): Promise<Either<SocialNotRegisteredResponse, User>> {
+    const user = await this.socialAuthProvidersRepository.findUserBySocialId(
+      profile.id,
+    );
+    if (!user) {
+      return either.error(
+        new SocialNotRegisteredResponse({
+          provider,
+        }),
+      );
+    }
+
+    return either.of(user);
+  }
+
+  async registerSocial(
+    profile: Profile,
+    username: string,
+    provider: SocialAuthProviderTypes,
+  ) {
+    const email = profile.emails![0].value;
+    const socialId = profile.id;
     if (
       await this.userService.existsByCredentials({
         email,
         username,
       })
     ) {
-      throw new UnprocessableEntityException();
+      return either.error(
+        new CredentialsTakenResponse({
+          providedEmail: email,
+          providedUsername: username,
+        }),
+      );
     }
-    const socialId = profile.id;
-    const oldProfile = await this.authProvidersRepository.findOne({
-      socialId,
-    });
-    if (!oldProfile) {
-      throw new UnprocessableEntityException();
+
+    if (await this.socialAuthProvidersRepository.existsBySocialId(socialId)) {
+      return either.error(
+        new SocialAlreadyAssignedResponse({
+          provider,
+        }),
+      );
     }
-    const user = await this.userService.save({ username, email });
-    await this.authProvidersRepository.save({
-      user,
-      provider: profile.provider as SocialAuthProviders,
-      socialId,
-    });
-
-    return this.signToken(user);
-  }
-
-  async loginSocial(profile: Profile) {
-    const user = await this.authProvidersRepository.findUserBySocialId(
-      profile.id,
+    const user = await this.socialAuthProvidersRepository.saveProviderAndUser(
+      { username, email, password: randomStringGenerator() },
+      { provider, socialId },
     );
-
-    if (!user) {
-      throw new UnauthorizedException();
-    }
-
-    return this.signToken(user);
+    return either.of(user);
   }
 }

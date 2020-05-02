@@ -1,11 +1,11 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { SocialAuthProviders } from '../auth.entity';
+import { SocialAuthProviderTypes } from '../auth.entity';
 
 @InputType()
 export class LoginSocialInput {
   @Field()
   accessToken: string;
 
-  @Field((type) => SocialAuthProviders)
-  provider: SocialAuthProviders;
+  @Field((_type) => SocialAuthProviderTypes)
+  provider: SocialAuthProviderTypes;
 }

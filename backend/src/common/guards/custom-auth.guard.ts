@@ -1,7 +1,6 @@
 import {
   CanActivate,
   ExecutionContext,
-  Logger,
   mixin,
   Optional,
   Type,
@@ -18,7 +17,7 @@ export const CustomAuthGuard: (
 
 function createAuthGuard(): Type<CanActivate> {
   class MixinAuthGuard<TUser = any> implements CanActivate {
-    constructor(@Optional() protected readonly options?: AuthModuleOptions) {
+    constructor(@Optional() protected readonly options: AuthModuleOptions) {
       this.options = this.options || {};
     }
 
@@ -53,7 +52,7 @@ function createAuthGuard(): Type<CanActivate> {
       );
     }
 
-    handleRequest(err, user, info, context, status): TUser {
+    handleRequest(err, user, _info, _context, _status): TUser {
       if (err || !user) {
         throw err || new UnauthorizedException();
       }

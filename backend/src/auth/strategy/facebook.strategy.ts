@@ -1,15 +1,16 @@
 import { PassportStrategy } from '@nestjs/passport';
-import { Profile, Strategy, VerifyCallback } from 'passport-google-token';
+import { Strategy } from 'passport-google-token';
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import facebookConfig from '../../config/facebook.config';
 import { UserService } from '../../user/user.service';
-import { SocialAuthProviders } from '../auth.entity';
+import { SocialAuthProviderTypes } from '../auth.entity';
+import { Profile } from 'passport';
 
 @Injectable()
 export class FacebookStrategy extends PassportStrategy(
   Strategy,
-  SocialAuthProviders.FACEBOOK,
+  SocialAuthProviderTypes.FACEBOOK,
 ) {
   constructor(
     private userService: UserService,
@@ -26,7 +27,7 @@ export class FacebookStrategy extends PassportStrategy(
     accessToken: string,
     refreshToken: string,
     profile: Profile,
-    done: VerifyCallback,
+    done: Function,
   ) {
     if (!profile) {
       return done(new UnauthorizedException(), false);

@@ -9,7 +9,7 @@ export class InvalidCredentialsResponse extends ErrorResponse {
   providedUsername: string;
 
   constructor(partial?: Partial<InvalidCredentialsResponse>) {
-    super();
+    super('Invalid credentials provided.');
     Object.assign(this, partial);
   }
 }

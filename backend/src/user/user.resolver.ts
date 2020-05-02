@@ -5,27 +5,27 @@ import { UseGuards } from '@nestjs/common';
 import { GqlUser } from '../common/decorators/gql-user.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
-@Resolver((of) => User)
+@Resolver()
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
-  @Query((returns) => [User])
+  @Query((_returns) => [User])
   async users(): Promise<User[]> {
     return this.userService.findAll();
   }
 
-  @Query((returns) => User)
+  @Query((_returns) => User)
   async user(@Args('username') username: string): Promise<User> {
     return this.userService.findOneByUsername(username);
   }
 
-  @Query((returns) => User)
+  @Query((_returns) => User)
   @UseGuards(JwtAuthGuard)
   async me(@GqlUser() user: User): Promise<User> {
     return user;
   }
 
-  @Mutation((returns) => User)
+  @Mutation((_returns) => User)
   @UseGuards(JwtAuthGuard)
   async removeUser(
     @Args({ name: 'id', type: () => ID }) id: number,

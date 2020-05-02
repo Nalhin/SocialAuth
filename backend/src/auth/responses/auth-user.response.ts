@@ -3,7 +3,7 @@ import { Field, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
 export class AuthUserResponse {
-  @Field((type) => User)
+  @Field((_type) => User)
   user: User;
 
   @Field()

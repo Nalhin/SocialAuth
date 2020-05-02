@@ -6,7 +6,7 @@ import { IsEmail, MinLength } from 'class-validator';
 @ObjectType()
 @Entity()
 export class User {
-  @Field((type) => ID)
+  @Field((_type) => ID)
   @PrimaryGeneratedColumn()
   id: number;
 

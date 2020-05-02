@@ -7,17 +7,17 @@ import { User } from '../user/user.entity';
 import { GqlUser } from '../common/decorators/gql-user.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
-@Resolver((of) => Post)
+@Resolver()
 export class PostResolver {
   constructor(private readonly postService: PostService) {}
 
-  @Query((returns) => [Post])
+  @Query((_returns) => [Post])
   async posts(): Promise<Post[]> {
     return this.postService.findAll();
   }
 
   @UseGuards(JwtAuthGuard)
-  @Mutation((returns) => Post)
+  @Mutation((_returns) => Post)
   async addPost(
     @Args('addPostInput') addPostInput: AddPostInput,
     @GqlUser() user: User,

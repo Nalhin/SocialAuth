@@ -1,5 +1,5 @@
 import { PassportStrategy } from '@nestjs/passport';
-import * as Strategy from 'passport-google-token';
+import { Strategy } from 'passport-google-token';
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import googleConfig from '../../config/google.config';
 import { ConfigType } from '@nestjs/config';
@@ -9,7 +9,7 @@ import { AuthTypes } from '../types/auth.types';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(
-  Strategy.Strategy,
+  Strategy,
   AuthTypes.GOOGLE,
 ) {
   constructor(
@@ -25,7 +25,7 @@ export class GoogleStrategy extends PassportStrategy(
 
   async validate(
     accessToken: string,
-    refreshToken: any,
+    refreshToken: string,
     profile: Profile,
     done: Function,
   ) {

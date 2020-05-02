@@ -1,9 +1,10 @@
 import { InputError } from 'src/graphql/response/invalid-input.response';
 
-export class InputValidationException {
+export class InputValidationException extends Error {
   errors: InputError[];
 
-  constructor(partial?: Partial<InputValidationException>) {
-    Object.assign(this, partial);
+  constructor(errors: InputError[]) {
+    super();
+    this.errors = errors;
   }
 }

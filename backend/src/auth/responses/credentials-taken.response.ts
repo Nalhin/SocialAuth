@@ -12,7 +12,7 @@ export class CredentialsTakenResponse extends ErrorResponse {
   providedEmail: string;
 
   constructor(partial?: Partial<CredentialsTakenResponse>) {
-    super();
+    super('Credentials are already taken.');
     Object.assign(this, partial);
   }
 }

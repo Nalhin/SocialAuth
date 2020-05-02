@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from '../user.service';
 import {
-  registerUserInputBuilder,
+  registerUserInputFactory,
   userFactory,
 } from '../../../test/factories/user.factory';
 import { UserRepository } from '../user.repository';
@@ -21,8 +21,9 @@ describe('UserService', () => {
 
   describe('save', () => {
     it('should save user', async () => {
-      const userRegisterInput = registerUserInputBuilder.buildOne();
+      const userRegisterInput = registerUserInputFactory.buildOne();
       const user = userFactory.buildOne(userRegisterInput);
+      jest.spyOn(repository, 'create').mockReturnValueOnce(user);
       jest.spyOn(repository, 'save').mockResolvedValueOnce(user);
 
       const result = await service.save(userRegisterInput);
@@ -45,7 +46,7 @@ describe('UserService', () => {
   describe('findOneByUsername', () => {
     it('should return user with given username', async () => {
       const user = userFactory.buildOne();
-      jest.spyOn(repository, 'findOne').mockResolvedValueOnce(user);
+      jest.spyOn(repository, 'findOneOrFail').mockResolvedValueOnce(user);
 
       const result = await service.findOneByUsername(user.username);
 
@@ -56,7 +57,7 @@ describe('UserService', () => {
   describe('remove', () => {
     it('should remove user', async () => {
       const user = userFactory.buildOne();
-      jest.spyOn(repository, 'findOne').mockResolvedValueOnce(user);
+      jest.spyOn(repository, 'findOneOrFail').mockResolvedValueOnce(user);
       jest.spyOn(repository, 'remove').mockResolvedValueOnce(user);
 
       const result = await service.remove(user.id);

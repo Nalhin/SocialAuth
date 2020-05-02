@@ -9,8 +9,8 @@ import { TypeOrmConfigService } from '../../../src/config/typeorm.config';
 import { TypeOrmTestConfigService } from '../../config/typeorm.config';
 import { TypeOrmTestUtils } from '../../utils/typeorm-test.utils';
 import {
-  loginUserInputBuilder,
-  registerUserInputBuilder,
+  loginUserInputFactory,
+  registerUserInputFactory,
   userFactory,
 } from '../../factories/user.factory';
 import { GQL } from '../constants';
@@ -65,10 +65,10 @@ describe('AuthModule (e2e)', () => {
           }
         }
       }
-    `.loc.source.body;
+    `.loc?.source.body;
 
     it('should login user with correct credentials', async () => {
-      const userLoginInput = loginUserInputBuilder.buildOne();
+      const userLoginInput = loginUserInputFactory.buildOne();
       const user = await userFactory.buildOneAsync(
         testUtils.saveOne,
         userLoginInput,
@@ -93,7 +93,7 @@ describe('AuthModule (e2e)', () => {
     });
 
     it('should reject if password is invalid', async () => {
-      const userLoginInput = loginUserInputBuilder.buildOne();
+      const userLoginInput = loginUserInputFactory.buildOne();
       await userFactory.buildOneAsync(testUtils.saveOne, {
         ...userLoginInput,
         password: 'invalid',
@@ -145,10 +145,10 @@ describe('AuthModule (e2e)', () => {
           }
         }
       }
-    `.loc.source.body;
+    `.loc?.source.body;
 
     it('should create user, and then return user Data', async () => {
-      const registerUserInput = registerUserInputBuilder.buildOne();
+      const registerUserInput = registerUserInputFactory.buildOne();
 
       const gqlReq = {
         query,
@@ -169,7 +169,7 @@ describe('AuthModule (e2e)', () => {
     });
 
     it('should return inputs errors if inputs is invalid', async () => {
-      const registerUserInput = registerUserInputBuilder.buildOne({
+      const registerUserInput = registerUserInputFactory.buildOne({
         email: 'invalid',
         password: 'short',
       });
@@ -192,7 +192,7 @@ describe('AuthModule (e2e)', () => {
     });
 
     it('should not allow to register if similar user exists', async () => {
-      const registerUserInput = registerUserInputBuilder.buildOne();
+      const registerUserInput = registerUserInputFactory.buildOne();
       await userFactory.buildOneAsync(testUtils.saveOne, registerUserInput);
 
       const gqlReq = {

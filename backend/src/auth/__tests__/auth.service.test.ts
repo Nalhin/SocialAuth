@@ -3,15 +3,12 @@ import { AuthService } from '../auth.service';
 import { UserService } from '../../user/user.service';
 import { JwtModule } from '@nestjs/jwt';
 import {
-  registerUserInputBuilder,
+  registerUserInputFactory,
   userFactory,
 } from '../../../test/factories/user.factory';
 import { UserRepository } from '../../user/user.repository';
-import {
-  UnauthorizedException,
-  UnprocessableEntityException,
-} from '@nestjs/common';
-import { AuthProvidersRepository } from '../auth.repository';
+import { SocialAuthProviderRepository } from '../auth.repository';
+import { CredentialsTakenResponse } from '../responses/credentials-taken.response';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -24,12 +21,44 @@ describe('AuthService', () => {
         AuthService,
         UserService,
         UserRepository,
-        AuthProvidersRepository,
+        SocialAuthProviderRepository,
       ],
     }).compile();
 
     authService = module.get<AuthService>(AuthService);
     userService = module.get<UserService>(UserService);
+  });
+
+  describe('validateCredentials', () => {
+    it('should return correct values if user with similar password exists', async () => {
+      const user = userFactory.buildOne();
+      const originalPassword = user.password;
+      await user.hashPassword();
+      jest.spyOn(userService, 'findOneByUsername').mockResolvedValueOnce(user);
+
+      const response = await authService.validateCredentials(
+        user.username,
+        originalPassword,
+      );
+
+      expect(response.value).toBe(user);
+    });
+
+    it('should return error, if passwords are not equal', async () => {
+      const user = userFactory.buildOne();
+      jest.spyOn(userService, 'findOneByUsername').mockResolvedValueOnce(user);
+
+      const response = await authService.validateCredentials(
+        user.username,
+        user.password,
+      );
+
+      expect(response.isError()).toBeTruthy();
+      expect(
+        ((response.value as unknown) as CredentialsTakenResponse)
+          .providedUsername,
+      ).toBe(user.username);
+    });
   });
 
   describe('signToken', () => {
@@ -43,8 +72,8 @@ describe('AuthService', () => {
   });
 
   describe('registerUser', () => {
-    it('should save user and return auth token', async () => {
-      const registerUserInput = registerUserInputBuilder.buildOne();
+    it('should save user', async () => {
+      const registerUserInput = registerUserInputFactory.buildOne();
       const user = userFactory.buildOne(registerUserInput);
       jest
         .spyOn(userService, 'existsByCredentials')
@@ -53,45 +82,22 @@ describe('AuthService', () => {
 
       const response = await authService.registerUser(registerUserInput);
 
-      expect(response.user.username).toBe(registerUserInput.username);
-      expect(response.token).toBeTruthy();
+      expect(response.value.username).toBe(registerUserInput.username);
     });
 
-    it('should throw exception, if credentials are already taken', async () => {
-      const registerUserInput = registerUserInputBuilder.buildOne();
+    it('should return error, if credentials are already taken', async () => {
+      const registerUserInput = registerUserInputFactory.buildOne();
 
       jest
         .spyOn(userService, 'existsByCredentials')
         .mockResolvedValueOnce(true);
 
-      await expect(
-        authService.registerUser(registerUserInput),
-      ).rejects.toThrowError(UnprocessableEntityException);
-    });
-  });
+      const response = await authService.registerUser(registerUserInput);
 
-  describe('validateUser', () => {
-    it('should return correct values if user with similar password exists', async () => {
-      const user = userFactory.buildOne();
-      const originalPassword = user.password;
-      await user.hashPassword();
-      jest.spyOn(userService, 'findOneByUsername').mockResolvedValueOnce(user);
-
-      const response = await authService.validateCredentials(
-        user.username,
-        originalPassword,
+      expect(response.isError()).toBeTruthy();
+      expect(response.errorsIfPresent()?.providedUsername).toBe(
+        registerUserInput.username,
       );
-
-      expect(response).toBe(user);
-    });
-
-    it('should throw exception, if passwords are not equal', async () => {
-      const user = userFactory.buildOne();
-      jest.spyOn(userService, 'findOneByUsername').mockResolvedValueOnce(user);
-
-      await expect(
-        authService.validateCredentials(user.username, user.password),
-      ).rejects.toThrowError(UnauthorizedException);
     });
   });
 });

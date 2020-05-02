@@ -12,14 +12,14 @@ import facebookConfig from '../config/facebook.config';
 import { AuthService } from './auth.service';
 import { AuthResolver } from './auth.resolver';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthProvidersRepository } from './auth.repository';
+import { SocialAuthProviderRepository } from './auth.repository';
 
 @Module({
   imports: [
     ConfigModule.forFeature(jwtConfig),
     ConfigModule.forFeature(googleConfig),
     ConfigModule.forFeature(facebookConfig),
-    TypeOrmModule.forFeature([AuthProvidersRepository]),
+    TypeOrmModule.forFeature([SocialAuthProviderRepository]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],

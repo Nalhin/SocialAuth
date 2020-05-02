@@ -10,7 +10,7 @@ export class InputValidationPipe extends ValidationPipe {
           field: error.property,
           messages: Object.values(error.constraints),
         }));
-        return new InputValidationException({ errors: parsedErrors });
+        return new InputValidationException(parsedErrors);
       },
     });
   }

@@ -11,7 +11,7 @@ import { User } from '../user/user.entity';
 @ObjectType()
 @Entity()
 export class Post {
-  @Field((type) => ID)
+  @Field((_type) => ID)
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -19,8 +19,8 @@ export class Post {
   @Column()
   content: string;
 
-  @Field((type) => User)
-  @ManyToOne((type) => User)
+  @Field((_type) => User)
+  @ManyToOne((_type) => User)
   author: User;
 
   @Field()
