@@ -19,6 +19,10 @@ export class UserService {
     return this.usersRepository.findOneOrFail({ username });
   }
 
+  findOneBySocialId(socialId: string): Promise<User | undefined> {
+    return this.usersRepository.findOneBySocialId(socialId);
+  }
+
   async remove(id: number): Promise<User> {
     const user = await this.usersRepository.findOneOrFail({ id });
     return this.usersRepository.remove(user);

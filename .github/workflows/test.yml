@@ -65,8 +65,12 @@ jobs:
       DB_USER: ${{secrets.DB_USER}}
       DB_PASSWORD: ${{secrets.DB_PASSWORD}}
       DB_TEST: ${{secrets.DB_TEST}}
-      JWT_SECRET: ${{secrets.JWT_SECRET}}
-      JWT_EXPIRES_IN: ${{secrets.JWT_EXPIRES_IN}}
+      JWT_EXPIRES_IN: 7 days
+      JWT_SECRET: key
+      FACEBOOK_ID: fake
+      FACEBOOK_SECRET: fake
+      GOOGLE_ID: fake
+      GOOGLE_SECRET: fake
       CI: true
     steps:
       - name: Checkout

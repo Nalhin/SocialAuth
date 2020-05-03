@@ -1,6 +1,6 @@
-import { SocialAuthProviderTypes } from '../auth.entity';
+import { SocialProviderTypes } from '../auth.entity';
 
 export const AuthTypes = {
-  ...SocialAuthProviderTypes,
-  JWT: 'JWT',
+  ...SocialProviderTypes,
+  JWT: 'jwt',
 };

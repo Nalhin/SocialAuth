@@ -1,16 +1,16 @@
 import { PassportStrategy } from '@nestjs/passport';
-import { Strategy } from 'passport-google-token';
+import * as Strategy from 'passport-facebook-token';
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import facebookConfig from '../../config/facebook.config';
 import { UserService } from '../../user/user.service';
-import { SocialAuthProviderTypes } from '../auth.entity';
 import { Profile } from 'passport';
+import { AuthTypes } from '../types/auth.types';
 
 @Injectable()
 export class FacebookStrategy extends PassportStrategy(
   Strategy,
-  SocialAuthProviderTypes.FACEBOOK,
+  AuthTypes.FACEBOOK,
 ) {
   constructor(
     private userService: UserService,

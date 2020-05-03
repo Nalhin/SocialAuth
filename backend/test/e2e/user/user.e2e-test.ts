@@ -18,7 +18,7 @@ describe('UserModule (e2e)', () => {
 
   beforeEach(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [AppModule, TypeOrmTestUtils],
     })
       .overrideProvider(GraphqlConfigService)
       .useClass(GraphqlTestConfigService)
@@ -28,7 +28,8 @@ describe('UserModule (e2e)', () => {
 
     app = moduleRef.createNestApplication();
     await app.init();
-    testUtils = new TypeOrmTestUtils();
+
+    testUtils = app.get(TypeOrmTestUtils);
     await testUtils.startServer();
   });
 

@@ -8,27 +8,27 @@ import {
 import { User } from '../user/user.entity';
 import { registerEnumType } from '@nestjs/graphql';
 
-export enum SocialAuthProviderTypes {
+export enum SocialProviderTypes {
   FACEBOOK = 'facebook',
   GOOGLE = 'google',
 }
 
-registerEnumType(SocialAuthProviderTypes, {
+registerEnumType(SocialProviderTypes, {
   name: 'SocialAuthProviders',
 });
 
 @Entity()
-export class SocialAuthProvider {
+export class SocialProvider {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ enum: SocialAuthProviderTypes })
-  provider: SocialAuthProviderTypes;
+  @Column({ enum: SocialProviderTypes })
+  provider: SocialProviderTypes;
 
   @Column({ unique: true })
   socialId: string;
 
-  @ManyToOne((_type) => User)
+  @ManyToOne((_type) => User, (user) => user.socialProviders)
   user: User;
 
   @CreateDateColumn()

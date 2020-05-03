@@ -5,8 +5,8 @@ import { User } from '../user/user.entity';
 import { AuthUserResponse } from './responses/auth-user.response';
 import { RegisterUserInput } from './inputs/register-user.input';
 import { Profile } from 'passport';
-import { SocialAuthProviderTypes } from './auth.entity';
-import { SocialAuthProviderRepository } from './auth.repository';
+import { SocialProviderTypes } from './auth.entity';
+import { SocialProviderRepository } from './auth.repository';
 import { randomStringGenerator } from '@nestjs/common/utils/random-string-generator.util';
 import { CredentialsTakenResponse } from './responses/credentials-taken.response';
 import { InvalidCredentialsResponse } from './responses/invalid-credentials.response';
@@ -19,7 +19,7 @@ export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
-    private readonly socialAuthProvidersRepository: SocialAuthProviderRepository,
+    private readonly socialAuthProvidersRepository: SocialProviderRepository,
   ) {}
 
   async validateCredentials(
@@ -62,11 +62,10 @@ export class AuthService {
 
   async loginSocial(
     profile: Profile,
-    provider: SocialAuthProviderTypes,
+    provider: SocialProviderTypes,
   ): Promise<Either<SocialNotRegisteredResponse, User>> {
-    const user = await this.socialAuthProvidersRepository.findUserBySocialId(
-      profile.id,
-    );
+    const user = await this.userService.findOneBySocialId(profile.id);
+
     if (!user) {
       return either.error(
         new SocialNotRegisteredResponse({
@@ -81,10 +80,19 @@ export class AuthService {
   async registerSocial(
     profile: Profile,
     username: string,
-    provider: SocialAuthProviderTypes,
+    provider: SocialProviderTypes,
   ) {
     const email = profile.emails![0].value;
     const socialId = profile.id;
+
+    if (await this.socialAuthProvidersRepository.existsBySocialId(socialId)) {
+      return either.error(
+        new SocialAlreadyAssignedResponse({
+          provider,
+        }),
+      );
+    }
+
     if (
       await this.userService.existsByCredentials({
         email,
@@ -99,13 +107,6 @@ export class AuthService {
       );
     }
 
-    if (await this.socialAuthProvidersRepository.existsBySocialId(socialId)) {
-      return either.error(
-        new SocialAlreadyAssignedResponse({
-          provider,
-        }),
-      );
-    }
     const user = await this.socialAuthProvidersRepository.saveProviderAndUser(
       { username, email, password: randomStringGenerator() },
       { provider, socialId },

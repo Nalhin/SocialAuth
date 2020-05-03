@@ -19,7 +19,7 @@ export class GoogleStrategy extends PassportStrategy(
   ) {
     super({
       clientID: googleConf.clientID,
-      consumerSecret: googleConf.consumerSecret,
+      clientSecret: googleConf.clientSecret,
     });
   }
 

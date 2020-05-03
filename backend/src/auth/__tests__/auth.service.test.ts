@@ -7,7 +7,7 @@ import {
   userFactory,
 } from '../../../test/factories/user.factory';
 import { UserRepository } from '../../user/user.repository';
-import { SocialAuthProviderRepository } from '../auth.repository';
+import { SocialProviderRepository } from '../auth.repository';
 import { CredentialsTakenResponse } from '../responses/credentials-taken.response';
 
 describe('AuthService', () => {
@@ -21,7 +21,7 @@ describe('AuthService', () => {
         AuthService,
         UserService,
         UserRepository,
-        SocialAuthProviderRepository,
+        SocialProviderRepository,
       ],
     }).compile();
 

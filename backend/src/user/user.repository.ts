@@ -14,4 +14,11 @@ export class UserRepository extends Repository<User> {
 
     return count > 0;
   }
+
+  findOneBySocialId(socialId: string): Promise<User | undefined> {
+    return this.createQueryBuilder('user')
+      .leftJoinAndSelect('user.socialProviders', 'providers')
+      .where('providers.socialId = :socialId', { socialId })
+      .getOne();
+  }
 }

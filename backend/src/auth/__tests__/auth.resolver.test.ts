@@ -12,7 +12,7 @@ import { UserRepository } from '../../user/user.repository';
 import { CredentialsTakenResponse } from '../responses/credentials-taken.response';
 import { AuthUserResponse } from '../responses/auth-user.response';
 import { InvalidCredentialsResponse } from '../responses/invalid-credentials.response';
-import { SocialAuthProviderRepository } from '../auth.repository';
+import { SocialProviderRepository } from '../auth.repository';
 import { either } from '../../common/utils/either';
 import {
   loginSocialInputFactory,
@@ -35,13 +35,13 @@ describe('AuthResolver', () => {
         AuthService,
         UserService,
         UserRepository,
-        SocialAuthProviderRepository,
+        SocialProviderRepository,
       ],
     }).compile();
 
-    authResolver = module.get<AuthResolver>(AuthResolver);
-    authService = module.get<AuthService>(AuthService);
-    jwtService = module.get<JwtService>(JwtService);
+    authResolver = module.get(AuthResolver);
+    authService = module.get(AuthService);
+    jwtService = module.get(JwtService);
   });
 
   describe('login', () => {
