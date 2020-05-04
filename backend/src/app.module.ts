@@ -16,8 +16,8 @@ import { envSchema } from './config/env.schema';
       useClass: GraphqlConfigService,
     }),
     ConfigModule.forRoot({
-      envFilePath: join(__dirname, '..', '..', '.env'),
       ignoreEnvFile: !!process.env.CI,
+      envFilePath: join(__dirname, '..', '..', '.env'),
       validationSchema: envSchema,
     }),
     TypeOrmModule.forRootAsync({

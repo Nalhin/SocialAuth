@@ -1,31 +1,33 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from '../user.service';
 import {
-  registerUserInputBuilder,
+  registerUserInputFactory,
   userFactory,
 } from '../../../test/factories/user.factory';
 import { UserRepository } from '../user.repository';
+import { socialProfileFactory } from '../../../test/factories/auth.factory';
 
 describe('UserService', () => {
-  let service: UserService;
-  let repository: UserRepository;
+  let userService: UserService;
+  let userRepository: UserRepository;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [UserService, UserRepository],
     }).compile();
 
-    service = module.get<UserService>(UserService);
-    repository = module.get<UserRepository>(UserRepository);
+    userService = module.get<UserService>(UserService);
+    userRepository = module.get<UserRepository>(UserRepository);
   });
 
   describe('save', () => {
     it('should save user', async () => {
-      const userRegisterInput = registerUserInputBuilder.buildOne();
+      const userRegisterInput = registerUserInputFactory.buildOne();
       const user = userFactory.buildOne(userRegisterInput);
-      jest.spyOn(repository, 'save').mockResolvedValueOnce(user);
+      jest.spyOn(userRepository, 'create').mockReturnValueOnce(user);
+      jest.spyOn(userRepository, 'save').mockResolvedValueOnce(user);
 
-      const result = await service.save(userRegisterInput);
+      const result = await userService.save(userRegisterInput);
 
       expect(result).toBe(user);
     });
@@ -34,9 +36,9 @@ describe('UserService', () => {
   describe('findAll', () => {
     it('should return all users', async () => {
       const users = userFactory.buildMany(2);
-      jest.spyOn(repository, 'find').mockResolvedValueOnce(users);
+      jest.spyOn(userRepository, 'find').mockResolvedValueOnce(users);
 
-      const result = await service.findAll();
+      const result = await userService.findAll();
 
       expect(result).toBe(users);
     });
@@ -45,9 +47,21 @@ describe('UserService', () => {
   describe('findOneByUsername', () => {
     it('should return user with given username', async () => {
       const user = userFactory.buildOne();
-      jest.spyOn(repository, 'findOne').mockResolvedValueOnce(user);
+      jest.spyOn(userRepository, 'findOneOrFail').mockResolvedValueOnce(user);
 
-      const result = await service.findOneByUsername(user.username);
+      const result = await userService.findOneByUsername(user.username);
+
+      expect(result).toBe(user);
+    });
+  });
+
+  describe('findOneBySocialId', () => {
+    it('should return user with given social id', async () => {
+      const { id: socialId } = socialProfileFactory.buildOne();
+      const user = userFactory.buildOne();
+      jest.spyOn(userRepository, 'findOneBySocialId').mockResolvedValueOnce(user);
+
+      const result = await userService.findOneBySocialId(socialId);
 
       expect(result).toBe(user);
     });
@@ -56,12 +70,23 @@ describe('UserService', () => {
   describe('remove', () => {
     it('should remove user', async () => {
       const user = userFactory.buildOne();
-      jest.spyOn(repository, 'findOne').mockResolvedValueOnce(user);
-      jest.spyOn(repository, 'remove').mockResolvedValueOnce(user);
+      jest.spyOn(userRepository, 'findOneOrFail').mockResolvedValueOnce(user);
+      jest.spyOn(userRepository, 'remove').mockResolvedValueOnce(user);
 
-      const result = await service.remove(user.id);
+      const result = await userService.remove(user.id);
 
       expect(result).toBe(user);
+    });
+  });
+
+  describe('existsByCredentials', () => {
+    it('should return if user with given credentials exists', async () => {
+      const { username, email } = userFactory.buildOne();
+      jest.spyOn(userRepository, 'existsByEmailOrUsername').mockResolvedValueOnce(true);
+
+      const result = await userService.existsByCredentials({username, email});
+
+      expect(result).toBeTruthy();
     });
   });
 });

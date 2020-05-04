@@ -18,10 +18,34 @@ export const envSchema = Joi.object({
     then: Joi.required(),
     otherwise: Joi.optional(),
   }),
-  JWT_SECRET: Joi.string().required(),
-  JWT_EXPIRES_IN: Joi.string().required(),
-  FACEBOOK_KEY: Joi.string(),
-  FACEBOOK_SECRET: Joi.string(),
-  GOOGLE_KEY: Joi.string(),
-  GOOGLE_SECRET: Joi.string(),
+  JWT_SECRET: Joi.string().when('NODE_ENV', {
+    is: 'production',
+    then: Joi.required(),
+    otherwise: Joi.optional().default('jwt'),
+  }),
+  JWT_EXPIRES_IN: Joi.string().when('NODE_ENV', {
+    is: 'production',
+    then: Joi.required(),
+    otherwise: Joi.optional().default('7 days'),
+  }),
+  FACEBOOK_ID: Joi.string().when('NODE_ENV', {
+    is: 'production',
+    then: Joi.required(),
+    otherwise: Joi.optional().default('fake'),
+  }),
+  FACEBOOK_SECRET: Joi.string().when('NODE_ENV', {
+    is: 'production',
+    then: Joi.required(),
+    otherwise: Joi.optional().default('fake'),
+  }),
+  GOOGLE_ID: Joi.string().when('NODE_ENV', {
+    is: 'production',
+    then: Joi.required(),
+    otherwise: Joi.optional().default('fake'),
+  }),
+  GOOGLE_SECRET: Joi.string().when('NODE_ENV', {
+    is: 'production',
+    then: Joi.required(),
+    otherwise: Joi.optional().default('fake'),
+  }),
 });

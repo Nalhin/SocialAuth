@@ -7,7 +7,8 @@ export class UserService {
   constructor(private readonly usersRepository: UserRepository) {}
 
   save(user: Partial<User>): Promise<User> {
-    return this.usersRepository.save(user);
+    const preparedUser = this.usersRepository.create(user);
+    return this.usersRepository.save(preparedUser);
   }
 
   findAll(): Promise<User[]> {
@@ -15,18 +16,24 @@ export class UserService {
   }
 
   findOneByUsername(username: string): Promise<User> {
-    return this.usersRepository.findOne({ username });
+    return this.usersRepository.findOneOrFail({ username });
+  }
+
+  findOneBySocialId(socialId: string): Promise<User | undefined> {
+    return this.usersRepository.findOneBySocialId(socialId);
   }
 
   async remove(id: number): Promise<User> {
-    const user = await this.usersRepository.findOne({ id });
+    const user = await this.usersRepository.findOneOrFail({ id });
     return this.usersRepository.remove(user);
   }
 
-  existsByCredentials(user: Partial<User>): Promise<boolean> {
+  existsByCredentials(
+    user: Pick<User, 'email' | 'username'>,
+  ): Promise<boolean> {
     return this.usersRepository.existsByEmailOrUsername(
       user.email,
-      user.password,
+      user.username,
     );
   }
 }

@@ -1,77 +1,89 @@
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Mutation, Resolver } from '@nestjs/graphql';
 import { LoginUserInput } from './inputs/login-user.input';
 import { AuthService } from './auth.service';
 import { RegisterUserInput } from './inputs/register-user.input';
-import {
-  UnauthorizedException,
-  UnprocessableEntityException,
-  UseFilters,
-  UsePipes,
-} from '@nestjs/common';
-import { InputValidationPipe } from '../common/pipes/input-validation.pipe';
-import { InputValidationExceptionFilter } from '../common/filters/input-validation-exception.filter';
+import { UseGuards } from '@nestjs/common';
 import { RegisterUserResultUnion } from './results/register-user.result';
-import { InvalidCredentialsResponse } from './responses/invalid-credentials.response';
 import { LoginUserResultUnion } from './results/login-user.result';
-import { CredentialsTakenResponse } from './responses/credentials-taken.response';
+import { SocialProfile } from '../common/decorators/social-profile.decorator';
+import { SocialAuthGuard } from '../common/guards/social-auth.guard';
+import { Profile } from 'passport';
+import { RegisterSocialInput } from './inputs/register-social.input';
+import { LoginSocialInput } from './inputs/login-social.input';
+import { Input } from '../graphql/args/input.args';
+import { LoginSocialResultUnion } from './results/login-social.result';
+import { RegisterSocialResultUnion } from './results/register-social.result';
+import { ValidateInput } from '../common/decorators/validate-input.decorator';
 
 @Resolver()
 export class AuthResolver {
   constructor(private readonly authService: AuthService) {}
 
-  @Mutation((returns) => [LoginUserResultUnion])
+  @Mutation((_returns) => [LoginUserResultUnion])
   async login(
-    @Args('loginUserInput') userLoginInput: LoginUserInput,
+    @Input() input: LoginUserInput,
   ): Promise<Array<typeof LoginUserResultUnion>> {
-    try {
-      const user = await this.authService.validateCredentials(
-        userLoginInput.username,
-        userLoginInput.password,
-      );
-      const authUser = await this.authService.signToken(user);
-      return [authUser];
-    } catch (e) {
-      if (e instanceof UnauthorizedException) {
-        return [
-          new InvalidCredentialsResponse({
-            message: 'Invalid credentials provided.',
-            providedUsername: userLoginInput.username,
-          }),
-        ];
-      }
+    const result = await this.authService.validateCredentials(
+      input.username,
+      input.password,
+    );
+
+    if (result.isError()) {
+      return [result.value];
     }
+
+    const authUser = await this.authService.signToken(result.value);
+    return [authUser];
   }
 
-  @UseFilters(new InputValidationExceptionFilter())
-  @UsePipes(new InputValidationPipe())
-  @Mutation((returns) => [RegisterUserResultUnion])
+  @ValidateInput()
+  @Mutation((_returns) => [RegisterUserResultUnion])
   async register(
-    @Args('registerUserInput')
-    registerUserInput: RegisterUserInput,
+    @Input() input: RegisterUserInput,
   ): Promise<Array<typeof RegisterUserResultUnion>> {
-    try {
-      const authUser = await this.authService.registerUser(registerUserInput);
-      return [authUser];
-    } catch (e) {
-      if (e instanceof UnprocessableEntityException) {
-        return [
-          new CredentialsTakenResponse({
-            message: 'Credentials are already taken.',
-            providedEmail: registerUserInput.email,
-            providedUsername: registerUserInput.username,
-          }),
-        ];
-      }
+    const result = await this.authService.registerUser(input);
+
+    if (result.isError()) {
+      return [result.value];
     }
+
+    const authUser = await this.authService.signToken(result.value);
+    return [authUser];
   }
 
-  // @UseGuards(SocialAuthGuard(SocialAuthTypes.FACEBOOK))
-  // @Mutation((returns) => [RegisterUserResultUnion])
-  // async registerGoogle(
-  //   @GqlUser() user: User,
-  // ): Promise<Array<typeof RegisterUserResultUnion>> {
-  //   try {
-  //     return null;
-  //   } catch (e) {}
-  // }
+  @UseGuards(SocialAuthGuard)
+  @Mutation((_returns) => [LoginSocialResultUnion])
+  async loginSocial(
+    @SocialProfile() profile: Profile,
+    @Input() input: LoginSocialInput,
+  ): Promise<Array<typeof LoginSocialResultUnion>> {
+    const social = await this.authService.loginSocial(profile, input.provider);
+
+    if (social.isError()) {
+      return [social.value];
+    }
+
+    const authUser = await this.authService.signToken(social.value);
+    return [authUser];
+  }
+
+  @UseGuards(SocialAuthGuard)
+  @Mutation((_returns) => [RegisterSocialResultUnion])
+  async registerSocial(
+    @SocialProfile() profile: Profile,
+    @Input() input: RegisterSocialInput,
+  ): Promise<Array<typeof RegisterSocialResultUnion>> {
+    const social = await this.authService.registerSocial(
+      profile,
+      input.username,
+      input.provider,
+    );
+
+    if (social.isError()) {
+      return [social.value];
+    }
+
+    const authUser = await this.authService.signToken(social.value);
+    return [authUser];
+  }
 }

@@ -8,9 +8,9 @@ import { TypeOrmConfigService } from '../../../src/config/typeorm.config';
 import { TypeOrmTestConfigService } from '../../config/typeorm.config';
 import { userFactory } from '../../factories/user.factory';
 import { TypeOrmTestUtils } from '../../utils/typeorm-test.utils';
-import { authHeaderFactory } from '../../factories/token.factory';
 import { gql } from 'apollo-server-express';
 import { GQL } from '../constants';
+import { authHeaderFactory } from '../../factories/auth.factory';
 
 describe('UserModule (e2e)', () => {
   let app: INestApplication;
@@ -18,7 +18,7 @@ describe('UserModule (e2e)', () => {
 
   beforeEach(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [AppModule, TypeOrmTestUtils],
     })
       .overrideProvider(GraphqlConfigService)
       .useClass(GraphqlTestConfigService)
@@ -28,7 +28,8 @@ describe('UserModule (e2e)', () => {
 
     app = moduleRef.createNestApplication();
     await app.init();
-    testUtils = new TypeOrmTestUtils();
+
+    testUtils = app.get(TypeOrmTestUtils);
     await testUtils.startServer();
   });
 
@@ -45,7 +46,7 @@ describe('UserModule (e2e)', () => {
           email
         }
       }
-    `.loc.source.body;
+    `.loc?.source.body;
 
     it('should return users', async () => {
       const users = await userFactory.buildManyAsync(testUtils.saveMany, 2);
@@ -72,7 +73,7 @@ describe('UserModule (e2e)', () => {
           email
         }
       }
-    `.loc.source.body;
+    `.loc?.source.body;
 
     it('should return user with given username', async () => {
       const user = await userFactory.buildOneAsync(testUtils.saveOne);
@@ -100,7 +101,7 @@ describe('UserModule (e2e)', () => {
           username
         }
       }
-    `.loc.source.body;
+    `.loc?.source.body;
 
     it('should remove user, and return removed user', async () => {
       const user = await userFactory.buildOneAsync(testUtils.saveOne);

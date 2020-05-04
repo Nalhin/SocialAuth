@@ -1,12 +1,19 @@
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BeforeInsert,
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import * as bcrypt from 'bcrypt';
 import { IsEmail, MinLength } from 'class-validator';
+import { SocialProvider } from '../auth/auth.entity';
 
 @ObjectType()
 @Entity()
 export class User {
-  @Field((type) => ID)
+  @Field((_type) => ID)
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -23,6 +30,9 @@ export class User {
   @MinLength(6)
   @Column()
   password: string;
+
+  @OneToMany((_type) => SocialProvider, (socialProvider) => socialProvider.user)
+  socialProviders: SocialProvider;
 
   @BeforeInsert()
   async hashPassword() {

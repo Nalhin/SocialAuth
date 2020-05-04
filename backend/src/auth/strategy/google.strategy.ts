@@ -1,29 +1,31 @@
 import { PassportStrategy } from '@nestjs/passport';
-import { Profile, Strategy, VerifyCallback } from 'passport-google-oauth20';
-import { Inject, UnauthorizedException } from '@nestjs/common';
+import { Strategy } from 'passport-google-token';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import googleConfig from '../../config/google.config';
 import { ConfigType } from '@nestjs/config';
-import { UserService } from '../../user/user.service';
+import { Profile } from 'passport';
+import { AuthTypes } from '../types/auth.types';
 
-export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
+@Injectable()
+export class GoogleStrategy extends PassportStrategy(
+  Strategy,
+  AuthTypes.GOOGLE,
+) {
   constructor(
-    private userService: UserService,
     @Inject(googleConfig.KEY)
     private googleConf: ConfigType<typeof googleConfig>,
   ) {
     super({
-      consumerKey: googleConf.consumerKey,
-      consumerSecret: googleConf.consumerSecret,
-      scope: googleConf.scope,
+      clientID: googleConf.clientID,
+      clientSecret: googleConf.clientSecret,
     });
   }
 
   async validate(
-    request: any,
     accessToken: string,
     refreshToken: string,
     profile: Profile,
-    done: VerifyCallback,
+    done: Function,
   ) {
     if (!profile) {
       return done(new UnauthorizedException(), false);
