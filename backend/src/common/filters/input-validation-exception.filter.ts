@@ -1,16 +1,13 @@
 import { ArgumentsHost, Catch } from '@nestjs/common';
 import { GqlExceptionFilter } from '@nestjs/graphql';
 import { InputValidationException } from '../exceptions/input-validation.exception';
-import { InvalidInputResponse } from '../../graphql/response/invalid-input.response';
+import { InvalidInputError } from '../../graphql/responses/invalid-input.error';
 
 @Catch(InputValidationException)
 export class InputValidationExceptionFilter implements GqlExceptionFilter {
   catch(exception: InputValidationException, host: ArgumentsHost) {
     const { errors } = exception;
-    const resp = new InvalidInputResponse({
-      errors,
-      message: 'Invalid input provided',
-    });
+    const resp = new InvalidInputError(errors);
     return [resp];
   }
 }

@@ -9,9 +9,9 @@ import {
   userFactory,
 } from '../../../test/factories/user.factory';
 import { UserRepository } from '../../user/user.repository';
-import { CredentialsTakenResponse } from '../responses/credentials-taken.response';
+import { CredentialsTakenError } from '../responses/credentials-taken.error';
 import { AuthUserResponse } from '../responses/auth-user.response';
-import { InvalidCredentialsResponse } from '../responses/invalid-credentials.response';
+import { InvalidCredentialsError } from '../responses/invalid-credentials.error';
 import { SocialProviderRepository } from '../auth.repository';
 import { either } from '../../common/utils/either';
 import {
@@ -19,8 +19,8 @@ import {
   registerSocialInputFactory,
   socialProfileFactory,
 } from '../../../test/factories/auth.factory';
-import { SocialNotRegisteredResponse } from '../responses/social-not-registered.response';
-import { SocialAlreadyAssignedResponse } from '../responses/social-already-assigned.response';
+import { SocialNotRegisteredError } from '../responses/social-not-registered.error';
+import { SocialAlreadyAssignedError } from '../responses/social-already-assigned.error';
 
 describe('AuthResolver', () => {
   let authResolver: AuthResolver;
@@ -65,17 +65,17 @@ describe('AuthResolver', () => {
       const loginUserInput = loginUserInputFactory.buildOne();
       jest.spyOn(authService, 'validateCredentials').mockResolvedValueOnce(
         either.error(
-          new InvalidCredentialsResponse({
+          new InvalidCredentialsError({
             providedUsername: loginUserInput.username,
           }),
         ),
       );
 
       const [result] = (await authResolver.login(loginUserInput)) as [
-        InvalidCredentialsResponse,
+        InvalidCredentialsError,
       ];
 
-      expect(result).toBeInstanceOf(InvalidCredentialsResponse);
+      expect(result).toBeInstanceOf(InvalidCredentialsError);
       expect(result.providedUsername).toBe(loginUserInput.username);
     });
   });
@@ -97,11 +97,11 @@ describe('AuthResolver', () => {
       expect(result.user).toEqual(user);
     });
 
-    it('should return response with error if credentials are taken', async () => {
+    it('should return responses with error if credentials are taken', async () => {
       const registerUserInput = registerUserInputFactory.buildOne();
       jest.spyOn(authService, 'registerUser').mockResolvedValueOnce(
         either.error(
-          new CredentialsTakenResponse({
+          new CredentialsTakenError({
             providedEmail: registerUserInput.email,
             providedUsername: registerUserInput.username,
           }),
@@ -109,10 +109,10 @@ describe('AuthResolver', () => {
       );
 
       const [result] = (await authResolver.register(registerUserInput)) as [
-        CredentialsTakenResponse,
+        CredentialsTakenError,
       ];
 
-      expect(result).toBeInstanceOf(CredentialsTakenResponse);
+      expect(result).toBeInstanceOf(CredentialsTakenError);
       expect(result.providedEmail).toBe(registerUserInput.email);
     });
   });
@@ -139,7 +139,7 @@ describe('AuthResolver', () => {
     it('should handle SocialNotRegistered errors correctly', async () => {
       jest.spyOn(authService, 'loginSocial').mockResolvedValueOnce(
         either.error(
-          new SocialNotRegisteredResponse({
+          new SocialNotRegisteredError({
             provider: loginSocialInput.provider,
           }),
         ),
@@ -148,9 +148,9 @@ describe('AuthResolver', () => {
       const [result] = (await authResolver.loginSocial(
         profile,
         loginSocialInput,
-      )) as [SocialNotRegisteredResponse];
+      )) as [SocialNotRegisteredError];
 
-      expect(result).toBeInstanceOf(SocialNotRegisteredResponse);
+      expect(result).toBeInstanceOf(SocialNotRegisteredError);
       expect(result.provider).toBe(loginSocialInput.provider);
     });
   });
@@ -178,7 +178,7 @@ describe('AuthResolver', () => {
     it('should handle CredentialsTaken errors correctly', async () => {
       jest.spyOn(authService, 'registerSocial').mockResolvedValueOnce(
         either.error(
-          new CredentialsTakenResponse({
+          new CredentialsTakenError({
             providedUsername: registerSocialInput.username,
           }),
         ),
@@ -187,16 +187,16 @@ describe('AuthResolver', () => {
       const [result] = (await authResolver.registerSocial(
         profile,
         registerSocialInput,
-      )) as [CredentialsTakenResponse];
+      )) as [CredentialsTakenError];
 
-      expect(result).toBeInstanceOf(CredentialsTakenResponse);
+      expect(result).toBeInstanceOf(CredentialsTakenError);
       expect(result.providedUsername).toBe(registerSocialInput.username);
     });
 
     it('should handle SocialAlreadyAssigned errors correctly', async () => {
       jest.spyOn(authService, 'registerSocial').mockResolvedValueOnce(
         either.error(
-          new SocialAlreadyAssignedResponse({
+          new SocialAlreadyAssignedError({
             provider: registerSocialInput.provider,
           }),
         ),
@@ -205,9 +205,9 @@ describe('AuthResolver', () => {
       const [result] = (await authResolver.registerSocial(
         profile,
         registerSocialInput,
-      )) as [SocialAlreadyAssignedResponse];
+      )) as [SocialAlreadyAssignedError];
 
-      expect(result).toBeInstanceOf(SocialAlreadyAssignedResponse);
+      expect(result).toBeInstanceOf(SocialAlreadyAssignedError);
       expect(result.provider).toBe(registerSocialInput.provider);
     });
   });

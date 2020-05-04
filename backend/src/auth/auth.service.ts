@@ -8,28 +8,28 @@ import { Profile } from 'passport';
 import { SocialProviderTypes } from './auth.entity';
 import { SocialProviderRepository } from './auth.repository';
 import { randomStringGenerator } from '@nestjs/common/utils/random-string-generator.util';
-import { CredentialsTakenResponse } from './responses/credentials-taken.response';
-import { InvalidCredentialsResponse } from './responses/invalid-credentials.response';
+import { CredentialsTakenError } from './responses/credentials-taken.error';
+import { InvalidCredentialsError } from './responses/invalid-credentials.error';
 import { Either, either } from '../common/utils/either';
-import { SocialAlreadyAssignedResponse } from './responses/social-already-assigned.response';
-import { SocialNotRegisteredResponse } from './responses/social-not-registered.response';
+import { SocialAlreadyAssignedError } from './responses/social-already-assigned.error';
+import { SocialNotRegisteredError } from './responses/social-not-registered.error';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
-    private readonly socialAuthProvidersRepository: SocialProviderRepository,
+    private readonly socialProviderRepository: SocialProviderRepository,
   ) {}
 
   async validateCredentials(
     username: string,
     password: string,
-  ): Promise<Either<InvalidCredentialsResponse, User>> {
+  ): Promise<Either<InvalidCredentialsError, User>> {
     const user = await this.userService.findOneByUsername(username);
     if (!(await user?.comparePassword(password))) {
       return either.error(
-        new InvalidCredentialsResponse({
+        new InvalidCredentialsError({
           providedUsername: username,
         }),
       );
@@ -47,10 +47,10 @@ export class AuthService {
 
   async registerUser(
     user: RegisterUserInput,
-  ): Promise<Either<CredentialsTakenResponse, User>> {
+  ): Promise<Either<CredentialsTakenError, User>> {
     if (await this.userService.existsByCredentials(user)) {
       return either.error(
-        new CredentialsTakenResponse({
+        new CredentialsTakenError({
           providedEmail: user.email,
           providedUsername: user.username,
         }),
@@ -63,12 +63,12 @@ export class AuthService {
   async loginSocial(
     profile: Profile,
     provider: SocialProviderTypes,
-  ): Promise<Either<SocialNotRegisteredResponse, User>> {
+  ): Promise<Either<SocialNotRegisteredError, User>> {
     const user = await this.userService.findOneBySocialId(profile.id);
 
     if (!user) {
       return either.error(
-        new SocialNotRegisteredResponse({
+        new SocialNotRegisteredError({
           provider,
         }),
       );
@@ -85,9 +85,9 @@ export class AuthService {
     const email = profile.emails![0].value;
     const socialId = profile.id;
 
-    if (await this.socialAuthProvidersRepository.existsBySocialId(socialId)) {
+    if (await this.socialProviderRepository.existsBySocialId(socialId)) {
       return either.error(
-        new SocialAlreadyAssignedResponse({
+        new SocialAlreadyAssignedError({
           provider,
         }),
       );
@@ -100,14 +100,14 @@ export class AuthService {
       })
     ) {
       return either.error(
-        new CredentialsTakenResponse({
+        new CredentialsTakenError({
           providedEmail: email,
           providedUsername: username,
         }),
       );
     }
 
-    const user = await this.socialAuthProvidersRepository.saveProviderAndUser(
+    const user = await this.socialProviderRepository.saveProviderAndUser(
       { username, email, password: randomStringGenerator() },
       { provider, socialId },
     );

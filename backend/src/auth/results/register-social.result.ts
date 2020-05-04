@@ -1,13 +1,13 @@
 import { createUnionType } from '@nestjs/graphql';
 import { AuthUserResponse } from '../responses/auth-user.response';
-import { SocialAlreadyAssignedResponse } from '../responses/social-already-assigned.response';
-import { CredentialsTakenResponse } from '../responses/credentials-taken.response';
+import { SocialAlreadyAssignedError } from '../responses/social-already-assigned.error';
+import { CredentialsTakenError } from '../responses/credentials-taken.error';
 
 export const RegisterSocialResultUnion = createUnionType({
   name: 'RegisterSocialResult',
   types: () => [
     AuthUserResponse,
-    SocialAlreadyAssignedResponse,
-    CredentialsTakenResponse,
+    SocialAlreadyAssignedError,
+    CredentialsTakenError,
   ],
 });

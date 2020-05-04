@@ -1,4 +1,4 @@
-import { InputError } from 'src/graphql/response/invalid-input.response';
+import { InputError } from 'src/graphql/responses/invalid-input.error';
 
 export class InputValidationException extends Error {
   errors: InputError[];

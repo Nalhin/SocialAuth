@@ -1,14 +1,14 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { ErrorResponse } from '../../graphql/interface/error-response.interface';
+import { ErrorResponse } from '../../graphql/interfaces/error-response.interface';
 
 @ObjectType({
   implements: [ErrorResponse],
 })
-export class InvalidCredentialsResponse extends ErrorResponse {
+export class InvalidCredentialsError extends ErrorResponse {
   @Field()
   providedUsername: string;
 
-  constructor(partial?: Partial<InvalidCredentialsResponse>) {
+  constructor(partial?: Partial<InvalidCredentialsError>) {
     super('Invalid credentials provided.');
     Object.assign(this, partial);
   }

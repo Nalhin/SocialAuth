@@ -15,19 +15,19 @@ import {
 } from '../../factories/user.factory';
 import { GQL } from '../constants';
 import { AuthUserResponse } from '../../../src/auth/responses/auth-user.response';
-import { InvalidCredentialsResponse } from '../../../src/auth/responses/invalid-credentials.response';
-import { InvalidInputResponse } from '../../../src/graphql/response/invalid-input.response';
-import { CredentialsTakenResponse } from '../../../src/auth/responses/credentials-taken.response';
+import { InvalidCredentialsError } from '../../../src/auth/responses/invalid-credentials.error';
+import { InvalidInputError } from '../../../src/graphql/responses/invalid-input.error';
+import { CredentialsTakenError } from '../../../src/auth/responses/credentials-taken.error';
 import {
   loginSocialInputFactory,
   registerSocialInputFactory,
   socialProfileFactory,
   socialProviderFactory,
 } from '../../factories/auth.factory';
-import { SocialNotRegisteredResponse } from '../../../src/auth/responses/social-not-registered.response';
+import { SocialNotRegisteredError } from '../../../src/auth/responses/social-not-registered.error';
 import { SocialProviderTypes } from '../../../src/auth/auth.entity';
 import { Profile } from 'passport';
-import { SocialAlreadyAssignedResponse } from '../../../src/auth/responses/social-already-assigned.response';
+import { SocialAlreadyAssignedError } from '../../../src/auth/responses/social-already-assigned.error';
 
 describe('AuthModule (e2e)', () => {
   let app: INestApplication;
@@ -70,7 +70,7 @@ describe('AuthModule (e2e)', () => {
             }
             token
           }
-          ... on InvalidCredentialsResponse {
+          ... on InvalidCredentialsError {
             providedUsername
             message
           }
@@ -123,7 +123,7 @@ describe('AuthModule (e2e)', () => {
         .expect(200);
 
       const [response] = result.body.data.login;
-      expect(response.__typename).toBe(InvalidCredentialsResponse.name);
+      expect(response.__typename).toBe(InvalidCredentialsError.name);
       expect(response.providedUsername).toBe(userLoginInput.username);
     });
   });
@@ -144,11 +144,11 @@ describe('AuthModule (e2e)', () => {
             }
             token
           }
-          ... on CredentialsTakenResponse {
+          ... on CredentialsTakenError {
             providedEmail
             providedUsername
           }
-          ... on InvalidInputResponse {
+          ... on InvalidInputError {
             errors {
               field
               messages
@@ -198,7 +198,7 @@ describe('AuthModule (e2e)', () => {
         .expect(200);
 
       const [response] = result.body.data.register;
-      expect(response.__typename).toBe(InvalidInputResponse.name);
+      expect(response.__typename).toBe(InvalidInputError.name);
       expect(response.errors.length).toBe(2);
     });
 
@@ -219,7 +219,7 @@ describe('AuthModule (e2e)', () => {
         .expect(200);
 
       const [response] = result.body.data.register;
-      expect(response.__typename).toBe(CredentialsTakenResponse.name);
+      expect(response.__typename).toBe(CredentialsTakenError.name);
       expect(response.providedUsername).toBe(registerUserInput.username);
     });
   });
@@ -257,7 +257,7 @@ describe('AuthModule (e2e)', () => {
                 }
                 token
               }
-              ... on SocialNotRegisteredResponse {
+              ... on SocialNotRegisteredError {
                 provider
               }
             }
@@ -305,7 +305,7 @@ describe('AuthModule (e2e)', () => {
             .expect(200);
 
           const [response] = result.body.data.loginSocial;
-          expect(response.__typename).toBe(SocialNotRegisteredResponse.name);
+          expect(response.__typename).toBe(SocialNotRegisteredError.name);
           expect(response.provider).toBe(providerEnum);
         });
 
@@ -338,11 +338,11 @@ describe('AuthModule (e2e)', () => {
                 }
                 token
               }
-              ... on CredentialsTakenResponse {
+              ... on CredentialsTakenError{
                 providedEmail
                 providedUsername
               }
-              ... on SocialAlreadyAssignedResponse {
+              ... on SocialAlreadyAssignedError {
                 provider
               }
             }
@@ -388,7 +388,7 @@ describe('AuthModule (e2e)', () => {
 
           const [response] = result.body.data.registerSocial;
 
-          expect(response.__typename).toBe(SocialAlreadyAssignedResponse.name);
+          expect(response.__typename).toBe(SocialAlreadyAssignedError.name);
           expect(response.provider).toBe(providerEnum);
         });
 
@@ -404,7 +404,7 @@ describe('AuthModule (e2e)', () => {
 
           const [response] = result.body.data.registerSocial;
 
-          expect(response.__typename).toBe(CredentialsTakenResponse.name);
+          expect(response.__typename).toBe(CredentialsTakenError.name);
           expect(response.providedUsername).toBe(registerSocialInput.username);
         });
 

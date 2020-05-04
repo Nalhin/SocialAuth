@@ -8,11 +8,15 @@ import {
 } from '../../../test/factories/user.factory';
 import { UserRepository } from '../../user/user.repository';
 import { SocialProviderRepository } from '../auth.repository';
-import { CredentialsTakenResponse } from '../responses/credentials-taken.response';
+import { CredentialsTakenError } from '../responses/credentials-taken.error';
+import { socialProfileFactory } from '../../../test/factories/auth.factory';
+import { SocialProviderTypes } from '../auth.entity';
+import { SocialAlreadyAssignedError } from '../responses/social-already-assigned.error';
 
 describe('AuthService', () => {
   let authService: AuthService;
   let userService: UserService;
+  let socialProviderRepository: SocialProviderRepository;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -25,8 +29,9 @@ describe('AuthService', () => {
       ],
     }).compile();
 
-    authService = module.get<AuthService>(AuthService);
-    userService = module.get<UserService>(UserService);
+    authService = module.get(AuthService);
+    userService = module.get(UserService);
+    socialProviderRepository = module.get(SocialProviderRepository);
   });
 
   describe('validateCredentials', () => {
@@ -53,11 +58,8 @@ describe('AuthService', () => {
         user.password,
       );
 
-      expect(response.isError()).toBeTruthy();
-      expect(
-        ((response.value as unknown) as CredentialsTakenResponse)
-          .providedUsername,
-      ).toBe(user.username);
+      const error = response.errorsIfPresent() as CredentialsTakenError;
+      expect(error.providedUsername).toBe(user.username);
     });
   });
 
@@ -94,10 +96,67 @@ describe('AuthService', () => {
 
       const response = await authService.registerUser(registerUserInput);
 
-      expect(response.isError()).toBeTruthy();
       expect(response.errorsIfPresent()?.providedUsername).toBe(
         registerUserInput.username,
       );
+    });
+  });
+
+  describe('loginSocial', () => {
+    const provider = SocialProviderTypes.FACEBOOK;
+
+    it('should return found user', async () => {
+      const profile = socialProfileFactory.buildOne();
+      const user = userFactory.buildOne();
+      jest.spyOn(userService, 'findOneBySocialId').mockResolvedValueOnce(user);
+
+      const result = await authService.loginSocial(profile, provider);
+
+      expect(result.resultIfPresent()).toBe(user);
+    });
+    it('should return error if user is not found', async () => {
+      const profile = socialProfileFactory.buildOne();
+      jest.spyOn(userService, 'findOneBySocialId').mockResolvedValueOnce(undefined);
+
+      const result = await authService.loginSocial(profile, provider);
+
+      expect(result.errorsIfPresent()?.provider).toBe(provider);
+    });
+  });
+
+  describe('registerSocial', () => {
+    const user = userFactory.buildOne();
+    const profile = socialProfileFactory.buildOne();
+    const provider = SocialProviderTypes.FACEBOOK;
+
+    it('should parse profile correctly and save user with provider ', async () => {
+      jest.spyOn(socialProviderRepository, 'existsBySocialId').mockResolvedValueOnce(false);
+      jest.spyOn(userService, 'existsByCredentials').mockResolvedValueOnce(false);
+      jest.spyOn(socialProviderRepository, 'saveProviderAndUser').mockResolvedValueOnce(user);
+
+      const result = await authService.registerSocial(profile, user.username, provider);
+
+      expect(result.resultIfPresent()).toBe(user);
+    });
+    it('should return error if given social id is already assigned', async () => {
+      jest.spyOn(socialProviderRepository, 'existsBySocialId').mockResolvedValueOnce(true);
+
+      const result = await authService.registerSocial(profile, user.username, provider);
+
+      const error = result.errorsIfPresent() as SocialAlreadyAssignedError;
+      expect(error).toBeInstanceOf(SocialAlreadyAssignedError);
+      expect(error.provider).toBe(provider);
+    });
+    it('should return error if credentials are already taken', async () => {
+      jest.spyOn(socialProviderRepository, 'existsBySocialId').mockResolvedValueOnce(false);
+      jest.spyOn(userService, 'existsByCredentials').mockResolvedValueOnce(true);
+
+      const result = await authService.registerSocial(profile, user.username, provider);
+
+      const error = result.errorsIfPresent() as CredentialsTakenError;
+      expect(error).toBeInstanceOf(CredentialsTakenError);
+      expect(error.providedEmail).toBe(profile.emails![0].value);
+      expect(error.providedUsername).toBe(user.username);
     });
   });
 });
