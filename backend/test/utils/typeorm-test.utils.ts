@@ -29,7 +29,7 @@ export class TypeOrmTestUtils {
     }
   };
 
-  saveMany = async (...entities) => {
+  saveMany = async (entities) => {
     const savedEntities: any[] = [];
 
     for (const entity of entities) {
