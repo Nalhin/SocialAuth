@@ -49,7 +49,7 @@ describe('UserModule (e2e)', () => {
     `.loc?.source.body;
 
     it('should return users', async () => {
-      const users = await userFactory.buildManyAsync(testUtils.saveMany, 2);
+      const users = await testUtils.saveMany(userFactory.buildMany(2));
 
       const gqlReg = {
         query,
@@ -76,7 +76,7 @@ describe('UserModule (e2e)', () => {
     `.loc?.source.body;
 
     it('should return user with given username', async () => {
-      const user = await userFactory.buildOneAsync(testUtils.saveOne);
+      const user = await testUtils.saveOne(userFactory.buildOne());
 
       const gqlReg = {
         query,
@@ -104,7 +104,7 @@ describe('UserModule (e2e)', () => {
     `.loc?.source.body;
 
     it('should remove user, and return removed user', async () => {
-      const user = await userFactory.buildOneAsync(testUtils.saveOne);
+      const user = await testUtils.saveOne(userFactory.buildOne());
 
       const gqlReq = {
         query,

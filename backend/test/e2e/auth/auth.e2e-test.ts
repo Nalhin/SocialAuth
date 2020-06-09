@@ -80,10 +80,9 @@ describe('AuthModule (e2e)', () => {
 
     it('should login user with correct credentials', async () => {
       const userLoginInput = loginUserInputFactory.buildOne();
-      const user = await userFactory.buildOneAsync(
-        testUtils.saveOne,
+      const user = await testUtils.saveOne(userFactory.buildOne(
         userLoginInput,
-      );
+      ));
 
       const gqlReq = {
         query,
@@ -105,10 +104,10 @@ describe('AuthModule (e2e)', () => {
 
     it('should reject if password is invalid', async () => {
       const userLoginInput = loginUserInputFactory.buildOne();
-      await userFactory.buildOneAsync(testUtils.saveOne, {
+      await testUtils.saveOne(userFactory.buildOne({
         ...userLoginInput,
         password: 'invalid',
-      });
+      }));
 
       const gqlReq = {
         query,
@@ -204,7 +203,7 @@ describe('AuthModule (e2e)', () => {
 
     it('should not allow to register if similar user exists', async () => {
       const registerUserInput = registerUserInputFactory.buildOne();
-      await userFactory.buildOneAsync(testUtils.saveOne, registerUserInput);
+      await testUtils.saveOne(userFactory.buildOne(registerUserInput));
 
       const gqlReq = {
         query,
@@ -279,12 +278,12 @@ describe('AuthModule (e2e)', () => {
         };
 
         it(`should login ${provider} social account correctly`, async () => {
-          const user = await userFactory.buildOneAsync(testUtils.saveOne);
-          await socialProviderFactory.buildOneAsync(testUtils.saveOne, {
+          const user = await testUtils.saveOne(userFactory.buildOne());
+          await testUtils.saveOne(socialProviderFactory.buildOne({
             ...loginSocialInput,
             socialId: socialProfile.id,
             user,
-          });
+          }));
 
           const result = await request(app.getHttpServer())
             .post(GQL)
@@ -377,9 +376,9 @@ describe('AuthModule (e2e)', () => {
         });
 
         it(`should return error if ${provider} account is already assigned`, async () => {
-          await socialProviderFactory.buildOneAsync(testUtils.saveOne, {
+          await testUtils.saveOne(socialProviderFactory.buildOne({
             socialId: socialProfile.id,
-          });
+          }));
 
           const result = await request(app.getHttpServer())
             .post(GQL)
@@ -393,9 +392,9 @@ describe('AuthModule (e2e)', () => {
         });
 
         it(`should return error if ${provider} credentials are already taken`, async () => {
-          await userFactory.buildOneAsync(testUtils.saveOne, {
+          await testUtils.saveOne(userFactory.buildOne({
             username: registerSocialInput.username,
-          });
+          }));
 
           const result = await request(app.getHttpServer())
             .post(GQL)
