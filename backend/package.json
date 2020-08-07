@@ -41,7 +41,7 @@
     "@nestjs/typeorm": "^7.1.0",
     "apollo-server-express": "^2.14.3",
     "bcrypt": "^4.0.1",
-    "class-transformer": "^0.2.3",
+    "class-transformer": "^0.3.1",
     "class-validator": "^0.12.2",
     "graphql": "^15.1.0",
     "graphql-tools": "^4.0.8",
