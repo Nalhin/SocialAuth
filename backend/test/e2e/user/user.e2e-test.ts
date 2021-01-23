@@ -1,40 +1,19 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from '../../../src/app.module';
-import { GraphqlConfigService } from '../../../src/config/graphql.config';
-import { GraphqlTestConfigService } from '../../config/graphql.config';
-import { TypeOrmConfigService } from '../../../src/config/typeorm.config';
-import { TypeOrmTestConfigService } from '../../config/typeorm.config';
 import { userFactory } from '../../factories/user.factory';
-import { TypeOrmTestUtils } from '../../utils/typeorm-test.utils';
 import { gql } from 'apollo-server-express';
 import { GQL } from '../constants';
 import { authHeaderFactory } from '../../factories/auth.factory';
+import { E2EApp, initializeApp } from '../utils/initialize-app';
 
 describe('UserModule (e2e)', () => {
-  let app: INestApplication;
-  let testUtils: TypeOrmTestUtils;
+  let e2e: E2EApp;
 
   beforeEach(async () => {
-    const moduleRef: TestingModule = await Test.createTestingModule({
-      imports: [AppModule, TypeOrmTestUtils],
-    })
-      .overrideProvider(GraphqlConfigService)
-      .useClass(GraphqlTestConfigService)
-      .overrideProvider(TypeOrmConfigService)
-      .useClass(TypeOrmTestConfigService)
-      .compile();
-
-    app = moduleRef.createNestApplication();
-    await app.init();
-
-    testUtils = app.get(TypeOrmTestUtils);
-    await testUtils.startServer();
+    e2e = await initializeApp();
   });
 
   afterEach(async () => {
-    await testUtils.closeServer();
+    await e2e.cleanup();
   });
 
   describe('users query', () => {
@@ -49,13 +28,13 @@ describe('UserModule (e2e)', () => {
     `.loc?.source.body;
 
     it('should return users', async () => {
-      const users = await testUtils.saveMany(userFactory.buildMany(2));
+      const users = await e2e.dbTestUtils.saveMany(userFactory.buildMany(2));
 
       const gqlReg = {
         query,
       };
 
-      const result = await request(app.getHttpServer())
+      const result = await request(e2e.app.getHttpServer())
         .post(GQL)
         .send(gqlReg)
         .expect(200);
@@ -76,7 +55,7 @@ describe('UserModule (e2e)', () => {
     `.loc?.source.body;
 
     it('should return user with given username', async () => {
-      const user = await testUtils.saveOne(userFactory.buildOne());
+      const user = await e2e.dbTestUtils.saveOne(userFactory.buildOne());
 
       const gqlReg = {
         query,
@@ -85,7 +64,7 @@ describe('UserModule (e2e)', () => {
         },
       };
 
-      const result = await request(app.getHttpServer())
+      const result = await request(e2e.app.getHttpServer())
         .post(GQL)
         .send(gqlReg)
         .expect(200);
@@ -104,7 +83,7 @@ describe('UserModule (e2e)', () => {
     `.loc?.source.body;
 
     it('should remove user, and return removed user', async () => {
-      const user = await testUtils.saveOne(userFactory.buildOne());
+      const user = await e2e.dbTestUtils.saveOne(userFactory.buildOne());
 
       const gqlReq = {
         query,
@@ -113,7 +92,7 @@ describe('UserModule (e2e)', () => {
         },
       };
 
-      const result = await request(app.getHttpServer())
+      const result = await request(e2e.app.getHttpServer())
         .post(GQL)
         .send(gqlReq)
         .set('Authorization', authHeaderFactory(user))
@@ -121,9 +100,5 @@ describe('UserModule (e2e)', () => {
 
       expect(result.body.data.removeUser.username).toBe(user.username);
     });
-  });
-
-  afterAll(async () => {
-    await app.close();
   });
 });

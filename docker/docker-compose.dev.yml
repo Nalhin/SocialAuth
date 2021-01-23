@@ -2,8 +2,8 @@ version: '3.7'
 
 services:
   db:
-    container_name: TutoringDB
-    image: postgres:latest
+    container_name: SocialAuthDb
+    image: postgres:12.5
     volumes:
       - ./scripts/postgres:/docker-entrypoint-initdb.d
     ports:
@@ -12,8 +12,6 @@ services:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_MULTIPLE_DATABASES="${DB_DEV}","${DB_TEST}"
-    env_file:
-      - ../.env
 
 volumes:
   db:

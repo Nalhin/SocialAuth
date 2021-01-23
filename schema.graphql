@@ -1,0 +1,116 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type User {
+  id: ID!
+  username: String!
+  email: String!
+}
+
+type InputError {
+  field: String!
+  messages: [String!]!
+}
+
+type Post {
+  id: ID!
+  content: String!
+  author: User!
+  created: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Query {
+  users: [User!]!
+  user(username: String!): User!
+  me: User!
+  posts: [Post!]!
+}
+
+type Mutation {
+  removeUser(id: ID!): User!
+  login(input: LoginUserInput!): [LoginUserResult!]!
+  register(input: RegisterUserInput!): [RegisterUserResult!]!
+  loginSocial(input: LoginSocialInput!): [LoginSocialResult!]!
+  registerSocial(input: RegisterSocialInput!): [RegisterSocialResult!]!
+  addPost(input: AddPostInput!): Post!
+}
+
+union LoginUserResult = AuthUserResponse | InvalidCredentialsError
+
+type AuthUserResponse {
+  user: User!
+  token: String!
+}
+
+type InvalidCredentialsError implements ErrorResponse {
+  message: String!
+  providedUsername: String!
+}
+
+interface ErrorResponse {
+  message: String!
+}
+
+input LoginUserInput {
+  username: String!
+  password: String!
+}
+
+union RegisterUserResult = AuthUserResponse | InvalidInputError | CredentialsTakenError
+
+type InvalidInputError implements ErrorResponse {
+  message: String!
+  errors: [InputError!]!
+}
+
+type CredentialsTakenError implements ErrorResponse {
+  message: String!
+  providedUsername: String!
+  providedEmail: String!
+}
+
+input RegisterUserInput {
+  username: String!
+  email: String!
+  password: String!
+}
+
+union LoginSocialResult = AuthUserResponse | SocialNotRegisteredError
+
+type SocialNotRegisteredError implements ErrorResponse {
+  message: String!
+  provider: SocialAuthProviders!
+}
+
+enum SocialAuthProviders {
+  FACEBOOK
+  GOOGLE
+}
+
+input LoginSocialInput {
+  accessToken: String!
+  provider: SocialAuthProviders!
+}
+
+union RegisterSocialResult = AuthUserResponse | SocialAlreadyAssignedError | CredentialsTakenError
+
+type SocialAlreadyAssignedError implements ErrorResponse {
+  message: String!
+  provider: SocialAuthProviders!
+}
+
+input RegisterSocialInput {
+  accessToken: String!
+  provider: SocialAuthProviders!
+  username: String!
+}
+
+input AddPostInput {
+  content: String!
+}

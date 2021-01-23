@@ -1,26 +1,26 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthResolver } from '../auth.resolver';
-import { AuthService } from '../auth.service';
-import { UserService } from '../../user/user.service';
+import { AuthResolver } from './auth.resolver';
+import { AuthService } from './auth.service';
+import { UserService } from '../user/user.service';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import {
   loginUserInputFactory,
   registerUserInputFactory,
   userFactory,
-} from '../../../test/factories/user.factory';
-import { UserRepository } from '../../user/user.repository';
-import { CredentialsTakenError } from '../responses/credentials-taken.error';
-import { AuthUserResponse } from '../responses/auth-user.response';
-import { InvalidCredentialsError } from '../responses/invalid-credentials.error';
-import { SocialProviderRepository } from '../auth.repository';
-import { either } from '../../common/utils/either';
+} from '../../test/factories/user.factory';
+import { UserRepository } from '../user/user.repository';
+import { CredentialsTakenError } from './responses/credentials-taken.error';
+import { AuthUserResponse } from './responses/auth-user.response';
+import { InvalidCredentialsError } from './responses/invalid-credentials.error';
+import { SocialProviderRepository } from './auth.repository';
+import { either } from '../common/utils/either';
 import {
   loginSocialInputFactory,
   registerSocialInputFactory,
   socialProfileFactory,
-} from '../../../test/factories/auth.factory';
-import { SocialNotRegisteredError } from '../responses/social-not-registered.error';
-import { SocialAlreadyAssignedError } from '../responses/social-already-assigned.error';
+} from '../../test/factories/auth.factory';
+import { SocialNotRegisteredError } from './responses/social-not-registered.error';
+import { SocialAlreadyAssignedError } from './responses/social-already-assigned.error';
 
 describe('AuthResolver', () => {
   let authResolver: AuthResolver;

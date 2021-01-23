@@ -1,17 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from '../auth.service';
-import { UserService } from '../../user/user.service';
+import { AuthService } from './auth.service';
+import { UserService } from '../user/user.service';
 import { JwtModule } from '@nestjs/jwt';
 import {
   registerUserInputFactory,
   userFactory,
-} from '../../../test/factories/user.factory';
-import { UserRepository } from '../../user/user.repository';
-import { SocialProviderRepository } from '../auth.repository';
-import { CredentialsTakenError } from '../responses/credentials-taken.error';
-import { socialProfileFactory } from '../../../test/factories/auth.factory';
-import { SocialProviderTypes } from '../auth.entity';
-import { SocialAlreadyAssignedError } from '../responses/social-already-assigned.error';
+} from '../../test/factories/user.factory';
+import { UserRepository } from '../user/user.repository';
+import { SocialProviderRepository } from './auth.repository';
+import { CredentialsTakenError } from './responses/credentials-taken.error';
+import { socialProfileFactory } from '../../test/factories/auth.factory';
+import { SocialProviderTypes } from './auth.entity';
+import { SocialAlreadyAssignedError } from './responses/social-already-assigned.error';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -116,7 +116,9 @@ describe('AuthService', () => {
     });
     it('should return error if user is not found', async () => {
       const profile = socialProfileFactory.buildOne();
-      jest.spyOn(userService, 'findOneBySocialId').mockResolvedValueOnce(undefined);
+      jest
+        .spyOn(userService, 'findOneBySocialId')
+        .mockResolvedValueOnce(undefined);
 
       const result = await authService.loginSocial(profile, provider);
 
@@ -130,28 +132,52 @@ describe('AuthService', () => {
     const provider = SocialProviderTypes.FACEBOOK;
 
     it('should parse profile correctly and save user with provider ', async () => {
-      jest.spyOn(socialProviderRepository, 'existsBySocialId').mockResolvedValueOnce(false);
-      jest.spyOn(userService, 'existsByCredentials').mockResolvedValueOnce(false);
-      jest.spyOn(socialProviderRepository, 'saveProviderAndUser').mockResolvedValueOnce(user);
+      jest
+        .spyOn(socialProviderRepository, 'existsBySocialId')
+        .mockResolvedValueOnce(false);
+      jest
+        .spyOn(userService, 'existsByCredentials')
+        .mockResolvedValueOnce(false);
+      jest
+        .spyOn(socialProviderRepository, 'saveProviderAndUser')
+        .mockResolvedValueOnce(user);
 
-      const result = await authService.registerSocial(profile, user.username, provider);
+      const result = await authService.registerSocial(
+        profile,
+        user.username,
+        provider,
+      );
 
       expect(result.resultIfPresent()).toBe(user);
     });
     it('should return error if given social id is already assigned', async () => {
-      jest.spyOn(socialProviderRepository, 'existsBySocialId').mockResolvedValueOnce(true);
+      jest
+        .spyOn(socialProviderRepository, 'existsBySocialId')
+        .mockResolvedValueOnce(true);
 
-      const result = await authService.registerSocial(profile, user.username, provider);
+      const result = await authService.registerSocial(
+        profile,
+        user.username,
+        provider,
+      );
 
       const error = result.errorsIfPresent() as SocialAlreadyAssignedError;
       expect(error).toBeInstanceOf(SocialAlreadyAssignedError);
       expect(error.provider).toBe(provider);
     });
     it('should return error if credentials are already taken', async () => {
-      jest.spyOn(socialProviderRepository, 'existsBySocialId').mockResolvedValueOnce(false);
-      jest.spyOn(userService, 'existsByCredentials').mockResolvedValueOnce(true);
+      jest
+        .spyOn(socialProviderRepository, 'existsBySocialId')
+        .mockResolvedValueOnce(false);
+      jest
+        .spyOn(userService, 'existsByCredentials')
+        .mockResolvedValueOnce(true);
 
-      const result = await authService.registerSocial(profile, user.username, provider);
+      const result = await authService.registerSocial(
+        profile,
+        user.username,
+        provider,
+      );
 
       const error = result.errorsIfPresent() as CredentialsTakenError;
       expect(error).toBeInstanceOf(CredentialsTakenError);

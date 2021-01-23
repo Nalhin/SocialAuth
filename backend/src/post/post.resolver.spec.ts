@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PostResolver } from '../post.resolver';
-import { PostService } from '../post.service';
-import { postFactory } from '../../../test/factories/post.factory';
-import { userFactory } from '../../../test/factories/user.factory';
-import { PostRepository } from '../post.repository';
+import { PostResolver } from './post.resolver';
+import { PostService } from './post.service';
+import { postFactory } from '../../test/factories/post.factory';
+import { userFactory } from '../../test/factories/user.factory';
+import { PostRepository } from './post.repository';
 
 describe('PostResolver', () => {
   let resolver: PostResolver;

@@ -5,9 +5,5 @@ import { CredentialsTakenError } from '../responses/credentials-taken.error';
 
 export const RegisterUserResultUnion = createUnionType({
   name: 'RegisterUserResult',
-  types: () => [
-    AuthUserResponse,
-    InvalidInputError,
-    CredentialsTakenError,
-  ],
+  types: () => [AuthUserResponse, InvalidInputError, CredentialsTakenError],
 });

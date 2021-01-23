@@ -2,8 +2,8 @@ version: '3.7'
 
 services:
   db:
-    container_name: TutoringDB
-    image: postgres:latest
+    container_name: SocialAuthDB
+    image: postgres:12.5
     ports:
       - "5432:5432"
     environment:

@@ -1,7 +1,6 @@
 import { User } from '../../src/user/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import jwtConfig from '../../src/config/jwt.config';
-import { Factory } from 'factory.io';
 import { Profile } from 'passport';
 import * as faker from 'faker';
 import {
@@ -10,11 +9,18 @@ import {
 } from '../../src/auth/auth.entity';
 import { LoginSocialInput } from '../../src/auth/inputs/login-social.input';
 import { RegisterSocialInput } from '../../src/auth/inputs/register-social.input';
+import { FactoryBuilder } from 'factory.io';
 
-const jwtService = new JwtService(jwtConfig());
+const conf = jwtConfig();
+const jwtService = new JwtService({
+  secretOrPrivateKey: conf.secret ?? 'jwt',
+  signOptions: {
+    expiresIn: conf.expiresIn ?? '7 days',
+  },
+});
 
 export function tokenFactory(user: Partial<User>) {
-  return jwtService.sign({ ...user });
+  return jwtService.sign({ username: user.username });
 }
 
 export function authHeaderFactory(user: Partial<User>) {
@@ -22,39 +28,39 @@ export function authHeaderFactory(user: Partial<User>) {
   return `Bearer ${token}`;
 }
 
-export const loginSocialInputFactory = new Factory(LoginSocialInput)
+export const loginSocialInputFactory = FactoryBuilder.of(LoginSocialInput)
   .props({
     accessToken: faker.random.uuid,
     provider: faker.random.arrayElement(Object.values(SocialProviderTypes)),
   })
-  .done();
+  .build();
 
-export const registerSocialInputFactory = new Factory(RegisterSocialInput)
+export const registerSocialInputFactory = FactoryBuilder.of(RegisterSocialInput)
   .mixins([loginSocialInputFactory])
   .props({ username: faker.internet.userName })
-  .done();
+  .build();
 
-const emailFactory = new Factory<Email>()
+const emailFactory = FactoryBuilder.of<Email>()
   .props({ value: faker.internet.email })
-  .done();
+  .build();
 
-export const socialProfileFactory = new Factory<Profile>()
+export const socialProfileFactory = FactoryBuilder.of<Profile>()
   .props({
     provider: faker.random.arrayElement(Object.values(SocialProviderTypes)),
     id: faker.random.uuid,
     displayName: faker.internet.userName,
     emails: emailFactory.buildMany(2),
   })
-  .done();
+  .build();
 
 interface Email {
   value: string;
 }
 
-export const socialProviderFactory = new Factory(SocialProvider)
+export const socialProviderFactory = FactoryBuilder.of(SocialProvider)
   .props({
     provider: faker.random.arrayElement(Object.values(SocialProviderTypes)),
     socialId: faker.random.uuid,
     created: faker.date.future,
   })
-  .done();
+  .build();

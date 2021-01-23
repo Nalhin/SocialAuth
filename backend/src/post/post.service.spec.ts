@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PostService } from '../post.service';
+import { PostService } from './post.service';
 import { Repository } from 'typeorm';
-import { Post } from '../post.entity';
-import { userFactory } from '../../../test/factories/user.factory';
-import { postFactory } from '../../../test/factories/post.factory';
-import { PostRepository } from '../post.repository';
+import { Post } from './post.entity';
+import { userFactory } from '../../test/factories/user.factory';
+import { postFactory } from '../../test/factories/post.factory';
+import { PostRepository } from './post.repository';
 
 describe('PostService', () => {
   let service: PostService;

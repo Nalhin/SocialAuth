@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserService } from '../user.service';
+import { UserService } from './user.service';
 import {
   registerUserInputFactory,
   userFactory,
-} from '../../../test/factories/user.factory';
-import { UserRepository } from '../user.repository';
-import { socialProfileFactory } from '../../../test/factories/auth.factory';
+} from '../../test/factories/user.factory';
+import { UserRepository } from './user.repository';
+import { socialProfileFactory } from '../../test/factories/auth.factory';
 
 describe('UserService', () => {
   let userService: UserService;
@@ -59,7 +59,9 @@ describe('UserService', () => {
     it('should return user with given social id', async () => {
       const { id: socialId } = socialProfileFactory.buildOne();
       const user = userFactory.buildOne();
-      jest.spyOn(userRepository, 'findOneBySocialId').mockResolvedValueOnce(user);
+      jest
+        .spyOn(userRepository, 'findOneBySocialId')
+        .mockResolvedValueOnce(user);
 
       const result = await userService.findOneBySocialId(socialId);
 
@@ -82,9 +84,11 @@ describe('UserService', () => {
   describe('existsByCredentials', () => {
     it('should return if user with given credentials exists', async () => {
       const { username, email } = userFactory.buildOne();
-      jest.spyOn(userRepository, 'existsByEmailOrUsername').mockResolvedValueOnce(true);
+      jest
+        .spyOn(userRepository, 'existsByEmailOrUsername')
+        .mockResolvedValueOnce(true);
 
-      const result = await userService.existsByCredentials({username, email});
+      const result = await userService.existsByCredentials({ username, email });
 
       expect(result).toBeTruthy();
     });

@@ -1,13 +1,5 @@
 import { gql } from 'apollo-server-express';
-import { INestApplication } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
-import { AppModule } from '../../../src/app.module';
-import { GraphqlConfigService } from '../../../src/config/graphql.config';
-import { GraphqlTestConfigService } from '../../config/graphql.config';
-import { TypeOrmConfigService } from '../../../src/config/typeorm.config';
-import { TypeOrmTestConfigService } from '../../config/typeorm.config';
-import { TypeOrmTestUtils } from '../../utils/typeorm-test.utils';
 import {
   loginUserInputFactory,
   registerUserInputFactory,
@@ -28,30 +20,17 @@ import { SocialNotRegisteredError } from '../../../src/auth/responses/social-not
 import { SocialProviderTypes } from '../../../src/auth/auth.entity';
 import { Profile } from 'passport';
 import { SocialAlreadyAssignedError } from '../../../src/auth/responses/social-already-assigned.error';
+import { E2EApp, initializeApp } from '../utils/initialize-app';
 
 describe('AuthModule (e2e)', () => {
-  let app: INestApplication;
-  let testUtils: TypeOrmTestUtils;
+  let e2e: E2EApp;
 
   beforeEach(async () => {
-    const moduleRef: TestingModule = await Test.createTestingModule({
-      imports: [AppModule, TypeOrmTestUtils],
-    })
-      .overrideProvider(GraphqlConfigService)
-      .useClass(GraphqlTestConfigService)
-      .overrideProvider(TypeOrmConfigService)
-      .useClass(TypeOrmTestConfigService)
-      .compile();
-
-    app = moduleRef.createNestApplication();
-    await app.init();
-
-    testUtils = app.get(TypeOrmTestUtils);
-    await testUtils.startServer();
+    e2e = await initializeApp();
   });
 
   afterEach(async () => {
-    await testUtils.closeServer();
+    await e2e.cleanup();
   });
 
   describe('login mutation', () => {
@@ -80,9 +59,9 @@ describe('AuthModule (e2e)', () => {
 
     it('should login user with correct credentials', async () => {
       const userLoginInput = loginUserInputFactory.buildOne();
-      const user = await testUtils.saveOne(userFactory.buildOne(
-        userLoginInput,
-      ));
+      const user = await e2e.dbTestUtils.saveOne(
+        userFactory.buildOne(userLoginInput),
+      );
 
       const gqlReq = {
         query,
@@ -91,7 +70,7 @@ describe('AuthModule (e2e)', () => {
         },
       };
 
-      const result = await request(app.getHttpServer())
+      const result = await request(e2e.app.getHttpServer())
         .post('/graphql')
         .send(gqlReq)
         .expect(200);
@@ -104,10 +83,12 @@ describe('AuthModule (e2e)', () => {
 
     it('should reject if password is invalid', async () => {
       const userLoginInput = loginUserInputFactory.buildOne();
-      await testUtils.saveOne(userFactory.buildOne({
-        ...userLoginInput,
-        password: 'invalid',
-      }));
+      await e2e.dbTestUtils.saveOne(
+        userFactory.buildOne({
+          ...userLoginInput,
+          password: 'invalid',
+        }),
+      );
 
       const gqlReq = {
         query,
@@ -116,7 +97,7 @@ describe('AuthModule (e2e)', () => {
         },
       };
 
-      const result = await request(app.getHttpServer())
+      const result = await request(e2e.app.getHttpServer())
         .post('/graphql')
         .send(gqlReq)
         .expect(200);
@@ -167,7 +148,7 @@ describe('AuthModule (e2e)', () => {
         },
       };
 
-      const result = await request(app.getHttpServer())
+      const result = await request(e2e.app.getHttpServer())
         .post(GQL)
         .send(gqlReq)
         .expect(200);
@@ -191,7 +172,7 @@ describe('AuthModule (e2e)', () => {
         },
       };
 
-      const result = await request(app.getHttpServer())
+      const result = await request(e2e.app.getHttpServer())
         .post(GQL)
         .send(gqlReq)
         .expect(200);
@@ -203,7 +184,7 @@ describe('AuthModule (e2e)', () => {
 
     it('should not allow to register if similar user exists', async () => {
       const registerUserInput = registerUserInputFactory.buildOne();
-      await testUtils.saveOne(userFactory.buildOne(registerUserInput));
+      await e2e.dbTestUtils.saveOne(userFactory.buildOne(registerUserInput));
 
       const gqlReq = {
         query,
@@ -212,7 +193,7 @@ describe('AuthModule (e2e)', () => {
         },
       };
 
-      const result = await request(app.getHttpServer())
+      const result = await request(e2e.app.getHttpServer())
         .post(GQL)
         .send(gqlReq)
         .expect(200);
@@ -232,7 +213,7 @@ describe('AuthModule (e2e)', () => {
       beforeEach(async () => {
         socialProfile = socialProfileFactory.buildOne({ provider });
         const strategyImport = await require(`../../../src/auth/strategy/${provider}.strategy`);
-        const Strategy = await app.get(Object.keys(strategyImport)[0]);
+        const Strategy = await e2e.app.get(Object.keys(strategyImport)[0]);
         jest
           .spyOn(Strategy, 'userProfile')
           .mockImplementation((token: any, func: any) => {
@@ -278,14 +259,16 @@ describe('AuthModule (e2e)', () => {
         };
 
         it(`should login ${provider} social account correctly`, async () => {
-          const user = await testUtils.saveOne(userFactory.buildOne());
-          await testUtils.saveOne(socialProviderFactory.buildOne({
-            ...loginSocialInput,
-            socialId: socialProfile.id,
-            user,
-          }));
+          const user = await e2e.dbTestUtils.saveOne(userFactory.buildOne());
+          await e2e.dbTestUtils.saveOne(
+            socialProviderFactory.buildOne({
+              ...loginSocialInput,
+              socialId: socialProfile.id,
+              user,
+            }),
+          );
 
-          const result = await request(app.getHttpServer())
+          const result = await request(e2e.app.getHttpServer())
             .post(GQL)
             .send(gqlReq)
             .expect(200);
@@ -298,7 +281,7 @@ describe('AuthModule (e2e)', () => {
         });
 
         it(`should return errors if ${provider} social account is not registered`, async () => {
-          const result = await request(app.getHttpServer())
+          const result = await request(e2e.app.getHttpServer())
             .post(GQL)
             .send(gqlReq)
             .expect(200);
@@ -310,7 +293,7 @@ describe('AuthModule (e2e)', () => {
 
         it(`should return errors, if ${provider} authentication is not successful`, async () => {
           socialProfile = null as any;
-          const result = await request(app.getHttpServer())
+          const result = await request(e2e.app.getHttpServer())
             .post(GQL)
             .send(gqlReq)
             .expect(200);
@@ -337,7 +320,7 @@ describe('AuthModule (e2e)', () => {
                 }
                 token
               }
-              ... on CredentialsTakenError{
+              ... on CredentialsTakenError {
                 providedEmail
                 providedUsername
               }
@@ -363,7 +346,7 @@ describe('AuthModule (e2e)', () => {
         };
 
         it(`should register ${provider} social account correctly`, async () => {
-          const result = await request(app.getHttpServer())
+          const result = await request(e2e.app.getHttpServer())
             .post(GQL)
             .send(gqlReq)
             .expect(200);
@@ -376,11 +359,13 @@ describe('AuthModule (e2e)', () => {
         });
 
         it(`should return error if ${provider} account is already assigned`, async () => {
-          await testUtils.saveOne(socialProviderFactory.buildOne({
-            socialId: socialProfile.id,
-          }));
+          await e2e.dbTestUtils.saveOne(
+            socialProviderFactory.buildOne({
+              socialId: socialProfile.id,
+            }),
+          );
 
-          const result = await request(app.getHttpServer())
+          const result = await request(e2e.app.getHttpServer())
             .post(GQL)
             .send(gqlReq)
             .expect(200);
@@ -392,11 +377,13 @@ describe('AuthModule (e2e)', () => {
         });
 
         it(`should return error if ${provider} credentials are already taken`, async () => {
-          await testUtils.saveOne(userFactory.buildOne({
-            username: registerSocialInput.username,
-          }));
+          await e2e.dbTestUtils.saveOne(
+            userFactory.buildOne({
+              username: registerSocialInput.username,
+            }),
+          );
 
-          const result = await request(app.getHttpServer())
+          const result = await request(e2e.app.getHttpServer())
             .post(GQL)
             .send(gqlReq)
             .expect(200);
@@ -409,7 +396,7 @@ describe('AuthModule (e2e)', () => {
 
         it(`should return errors, if ${provider} authentication is not successful`, async () => {
           socialProfile = null as any;
-          const result = await request(app.getHttpServer())
+          const result = await request(e2e.app.getHttpServer())
             .post(GQL)
             .send(gqlReq)
             .expect(200);
@@ -421,8 +408,4 @@ describe('AuthModule (e2e)', () => {
       });
     },
   );
-
-  afterAll(async () => {
-    await app.close();
-  });
 });

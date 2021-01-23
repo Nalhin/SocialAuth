@@ -6,7 +6,7 @@ import { UseGuards } from '@nestjs/common';
 import { User } from '../user/user.entity';
 import { GqlUser } from '../common/decorators/gql-user.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import {Input} from "../graphql/args/input.args";
+import { Input } from '../graphql/args/input.args';
 
 @Resolver()
 export class PostResolver {
