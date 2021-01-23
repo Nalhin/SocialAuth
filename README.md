@@ -23,8 +23,8 @@ NestJS framework Social Auth implementation supporting multiple social providers
 ## Description
 
 The project provides the baseline configuration for NestJS GraphQL social authentication. The architecture can easily be
-extended to support different OAuth providers (as the social authentication is implemented with strategy design pattern)
-. The social auth is implemented based on Passport.js library.
+extended to support different OAuth providers as the social auth is implemented based on Passport.js library utilizing a
+strategy design pattern.
 
 Supported providers:
 
@@ -32,9 +32,9 @@ Supported providers:
 * Facebook
 
 A database social profile entry is created after the user authenticates with the social provider. If the user does not
-have an account, a new one is created, and the social profile connects with that account. After social authentication,
-the app continues with default (JWT) authentication strategy. A user can connect his account with multiple social
-providers.
+have an account, a new one is created, and the social profile gets attached to that account. After social
+authentication, the user continues with the default (JWT) authentication strategy. A user can connect his account with
+multiple social providers.
 
 ## Features
 
@@ -51,6 +51,9 @@ providers.
 * Graphql
 * Apollo
 * Passport
+* Jest
+* Supertest
+* PostgreSQL
 
 ### CI/CD
 
@@ -88,7 +91,6 @@ Social authentication utilizes a strategy design pattern that allows for quick i
 
 ```
 strategy
-
 ├── facebook.strategy 
 ├── google.strategy
 └── jwt.strategy
@@ -102,7 +104,7 @@ documentation to be available. Alternatively, a schema.graphql file is provided 
 
 # Env schema
 
-Please provide an .env file in the root directory that conforms to the following JSON schema
+Please provide an .env file in the root directory that conforms to the following JSON schema.
 
 ```json
 {
