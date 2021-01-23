@@ -1,17 +1,18 @@
 [![Test](https://github.com/Nalhin/socialAuth/workflows/Test/badge.svg?branch=master)](https://github.com/Nalhin/SocialAuth/actions)
 [![Codecov](https://codecov.io/gh/Nalhin/SocialAuth/branch/master/graph/badge.svg)](https://codecov.io/gh/Nalhin/SocialAuth)
-[![CodeFactor](https://www.codefactor.io/repository/github/nalhin/socialauth/badge)](https://www.codefactor.io/repository/github/nalhin/tutoring)
+[![CodeFactor](https://www.codefactor.io/repository/github/nalhin/socialauth/badge)](https://www.codefactor.io/repository/github/nalhin/socialauth)
 [![License](https://img.shields.io/github/license/nalhin/SocialMedia)](LICENSE.md)
 
 # Social Auth
 
-NestJS framework Social Auth implementation supporting multiple providers (google and facebook). 
+NestJS framework Social Auth implementation supporting multiple social providers.
 
 ## Table of contents
 
 * [Description](#description)
 * [Features](#features)
 * [Architecture](#architecture)
+* [Features](#features)
 * [GraphQL API specification](#graphql-api-specification)
 * [Env schema](#env-schema)
 * [Prerequisites](#prerequisites)
@@ -21,18 +22,35 @@ NestJS framework Social Auth implementation supporting multiple providers (googl
 
 ## Description
 
-Social Auth provides the extendable base implementation of social auth in graphql application
+The project provides the baseline configuration for NestJS GraphQL social authentication. The architecture can easily be
+extended to support different OAuth providers (as the social authentication is implemented with strategy design pattern)
+. The social auth is implemented based on Passport.js library.
+
+Supported providers:
+
+* Google
+* Facebook
+
+A database social profile entry is created after the user authenticates with the social provider. If the user does not
+have an account, a new one is created, and the social profile connects with that account. After social authentication,
+the app continues with default (JWT) authentication strategy. A user can connect his account with multiple social
+providers.
 
 ## Features
 
-* Multiple social auth providers
+* Multiple social authentication providers
+* JWT authentication
+* GraphQL API
+* Persistence in PostgreSQL
+
+## Technology stack
 
 ### Backend
 
 * NestJS
 * Graphql
 * Apollo
-*
+* Passport
 
 ### CI/CD
 
@@ -41,7 +59,41 @@ Social Auth provides the extendable base implementation of social auth in graphq
 
 ## Architecture
 
-Architecture description
+The application follows a feature-first module structure resulting in a clean separation of boundaries between modules.
+The GraphQL API uses union return types instead of Apollo errors to indicate an alternative flow of action. This
+decision results in well-documented errors, one source of truth (the GraphQL schema) and better TypeScript support. It
+also allows the user to indicate which error fields he wants to receive. The error handling was modelled after
+the [GraphQL Conf presentation](https://www.youtube.com/watch?v=A5-H6MtTvqk).
+
+### Folder structure
+
+```
+root
+├── common (shared logic)
+├── config (configuration)
+├── graphql (graphql decorators, interfaces and responses)
+└── feature modules 
+    ├── input (input dto)
+    ├── responses (response dto) 
+    ├── results (unions of responses and errors) 
+    ├── entity (database entities) 
+    ├── service (business logic) 
+    ├── resolver (graphql resolver) 
+    └── repository (database repository) 
+```
+
+### Social
+
+Social authentication utilizes a strategy design pattern that allows for quick implementation of additional providers.
+
+```
+strategy
+
+├── facebook.strategy 
+├── google.strategy
+└── jwt.strategy
+
+```
 
 ## GraphQL API specification
 
