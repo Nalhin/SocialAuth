@@ -1,18 +1,18 @@
-[![Test](https://github.com/Nalhin/Tutoring/workflows/Test/badge.svg?branch=master)](https://github.com/Nalhin/Tutoring/actions)
-[![Codecov](https://codecov.io/gh/Nalhin/SocialAuth/branch/master/graph/badge.svg)](https://codecov.io/gh/Nalhin/Tutoring)
+[![Test](https://github.com/Nalhin/socialAuth/workflows/Test/badge.svg?branch=master)](https://github.com/Nalhin/SocialAuth/actions)
+[![Codecov](https://codecov.io/gh/Nalhin/SocialAuth/branch/master/graph/badge.svg)](https://codecov.io/gh/Nalhin/SocialAuth)
 [![CodeFactor](https://www.codefactor.io/repository/github/nalhin/socialauth/badge)](https://www.codefactor.io/repository/github/nalhin/tutoring)
 [![License](https://img.shields.io/github/license/nalhin/SocialMedia)](LICENSE.md)
 
 # Social Auth
 
-GraphQL social auth implementation supporting multiple providers (mainly google and facebook) based on NestJS framework.
+NestJS framework Social Auth implementation supporting multiple providers (google and facebook). 
 
 ## Table of contents
 
 * [Description](#description)
 * [Features](#features)
 * [Architecture](#architecture)
-* [REST API specification](#graphql-api-specification)
+* [GraphQL API specification](#graphql-api-specification)
 * [Env schema](#env-schema)
 * [Prerequisites](#prerequisites)
 * [Installation](#installation)
