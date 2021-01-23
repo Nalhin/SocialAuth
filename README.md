@@ -5,7 +5,7 @@
 
 # Social Auth
 
-NestJS framework Social Auth implementation supporting multiple social providers.
+NestJS GraphQL Social Auth implementation supporting multiple social providers.
 
 ## Table of contents
 
