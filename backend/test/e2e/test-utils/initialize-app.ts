@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../../../src/app.module';
-import { TypeOrmTestUtils } from '../../utils/typeorm-test.utils';
+import { TypeOrmTestUtils } from './typeorm-test.utils';
 import { GraphqlConfigService } from '../../../src/config/graphql.config';
 import { GraphqlTestConfigService } from '../../config/graphql.config';
 import { TypeOrmConfigService } from '../../../src/config/typeorm.config';

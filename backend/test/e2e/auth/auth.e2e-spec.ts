@@ -20,7 +20,7 @@ import { SocialNotRegisteredError } from '../../../src/auth/responses/social-not
 import { SocialProviderTypes } from '../../../src/auth/auth.entity';
 import { Profile } from 'passport';
 import { SocialAlreadyAssignedError } from '../../../src/auth/responses/social-already-assigned.error';
-import { E2EApp, initializeApp } from '../utils/initialize-app';
+import { E2EApp, initializeApp } from '../test-utils/initialize-app';
 
 describe('AuthModule (e2e)', () => {
   let e2e: E2EApp;
@@ -138,7 +138,7 @@ describe('AuthModule (e2e)', () => {
       }
     `.loc?.source.body;
 
-    it('should create user, and then return user Data', async () => {
+    it('should create user, and then return user data', async () => {
       const registerUserInput = registerUserInputFactory.buildOne();
 
       const gqlReq = {
@@ -291,7 +291,7 @@ describe('AuthModule (e2e)', () => {
           expect(response.provider).toBe(providerEnum);
         });
 
-        it(`should return errors, if ${provider} authentication is not successful`, async () => {
+        it(`should return errors, if ${provider} login is not successful`, async () => {
           socialProfile = null as any;
           const result = await request(e2e.app.getHttpServer())
             .post(GQL)
@@ -394,7 +394,7 @@ describe('AuthModule (e2e)', () => {
           expect(response.providedUsername).toBe(registerSocialInput.username);
         });
 
-        it(`should return errors, if ${provider} authentication is not successful`, async () => {
+        it(`should return errors, if ${provider} social register is not successful`, async () => {
           socialProfile = null as any;
           const result = await request(e2e.app.getHttpServer())
             .post(GQL)

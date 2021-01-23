@@ -10,7 +10,8 @@ import { Input } from '../graphql/args/input.args';
 
 @Resolver()
 export class PostResolver {
-  constructor(private readonly postService: PostService) {}
+  constructor(private readonly postService: PostService) {
+  }
 
   @Query((_returns) => [Post])
   async posts(): Promise<Post[]> {

@@ -6,13 +6,14 @@ import { PostRepository } from './post.repository';
 
 @Injectable()
 export class PostService {
-  constructor(private readonly postsRepository: PostRepository) {}
+  constructor(private readonly postsRepository: PostRepository) {
+  }
 
   async save(post: AddPostInput, user: User): Promise<Post> {
     return this.postsRepository.save({ ...post, author: user });
   }
 
   findAll(): Promise<Post[]> {
-    return this.postsRepository.find();
+    return this.postsRepository.find({ relations: ['author'] });
   }
 }

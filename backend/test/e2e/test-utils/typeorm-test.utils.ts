@@ -1,5 +1,9 @@
 import { Connection, getConnection } from 'typeorm';
 
+export interface Class<T> extends Function {
+  new(...args: any[]): T;
+}
+
 export class TypeOrmTestUtils {
   private connection: Connection;
 
@@ -17,31 +21,34 @@ export class TypeOrmTestUtils {
     await this.connection.close();
   }
 
-  saveOne = async (entity) => {
+  saveOne = async <T>(entity: T): Promise<T> => {
     try {
-      const repository = this.connection.getRepository(entity.constructor.name);
+      const name = (entity as unknown as Class<T>).constructor.name;
+      const repository = this.connection.getRepository(name);
       return await repository.save(entity);
     } catch (e) {
       throw new Error(
-        `Error saving entity: ${entity.constructor.name}
+        `Error saving entity: ${name}
         ${e}`,
       );
     }
   };
 
-  saveMany = async (entities) => {
-    const savedEntities: any[] = [];
+  saveMany = async <T>(entities: T[]): Promise<T[]> => {
+    const savedEntities: T[] = [];
 
     for (const entity of entities) {
       try {
+        const name = (entity as unknown as Class<T>).constructor.name;
         const repository = this.connection.getRepository(
-          entity.constructor.name,
+          name,
         );
-        const savedEntity = await repository.save(entity);
+        const created = repository.create({...entity}) as T;
+        const savedEntity = await repository.save(created);
         savedEntities.push(savedEntity);
       } catch (e) {
         throw new Error(
-          `Error saving entity: ${entity.constructor.name}
+          `Error saving entity: ${name}
           ${e}`,
         );
       }

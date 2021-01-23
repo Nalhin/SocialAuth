@@ -3,7 +3,7 @@ import { userFactory } from '../../factories/user.factory';
 import { gql } from 'apollo-server-express';
 import { GQL } from '../constants';
 import { authHeaderFactory } from '../../factories/auth.factory';
-import { E2EApp, initializeApp } from '../utils/initialize-app';
+import { E2EApp, initializeApp } from '../test-utils/initialize-app';
 
 describe('UserModule (e2e)', () => {
   let e2e: E2EApp;
