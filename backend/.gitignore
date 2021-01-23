@@ -1,6 +1,7 @@
 # compiled output
 dist
-
+coverage
+coverage-e2e
 node_modules
 .env
 

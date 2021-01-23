@@ -4,9 +4,9 @@ module.exports = {
     'json',
     'ts',
   ],
-  rootDir: 'src',
+  rootDir: '.',
   collectCoverageFrom: [
-    'src/**/*.(t|j)s',
+    'src/**/*.(t|j)s', '!src/**/*.spec.(t|j)s',
   ],
   coverageDirectory: './coverage',
   testEnvironment: 'node',
