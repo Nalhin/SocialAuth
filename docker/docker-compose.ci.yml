@@ -1,9 +1,9 @@
-version: '3.7'
+version: '3.8'
 
 services:
   db:
     container_name: SocialAuthDB
-    image: postgres:12.5
+    image: postgres:15.2
     ports:
       - "5432:5432"
     environment:

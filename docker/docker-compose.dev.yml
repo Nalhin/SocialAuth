@@ -1,9 +1,9 @@
-version: '3.7'
+version: '3.8'
 
 services:
   db:
     container_name: SocialAuthDb
-    image: postgres:12.5
+    image: postgres:15.2
     volumes:
       - ./scripts/postgres:/docker-entrypoint-initdb.d
     ports:
