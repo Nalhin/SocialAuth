@@ -192,7 +192,7 @@ Run the following commands before proceeding to the sections below.
 ### Setup database
 
 ```bash
-docker-compose --env-file ./.env --f ./docker/docker-compose.dev.yml up -d
+docker-compose --env-file ./.env -f ./docker/docker-compose.dev.yml up -d
 ```
 
 or
